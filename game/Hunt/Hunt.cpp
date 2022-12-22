@@ -87,9 +87,8 @@ void Hunt::input(SDL_Event *e) {
 void Hunt::update(double dt) {
     if(isPaused) return;
 
-    skybox->shader->setMat4("view", view);
+    skybox->shader->setMat4("view", glm::mat4(glm::mat3(view)));
     skybox->shader->setMat4("projection", projection);
-    skybox->shader->setMat4("model", glm::mat4(1.f));
 
     mesh->shader->setMat4("view", view);
     mesh->shader->setMat4("projection", projection);

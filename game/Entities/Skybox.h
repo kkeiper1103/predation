@@ -12,10 +12,10 @@ class Skybox {
 protected:
     GLuint vaoId{0};
     GLuint vboId{0};
-    GLuint textures[2] = {0, 0};
+    GLuint textureId{0};
 
     int width{256};
-    int height{128};
+    int height{256};
 
     // for now, the shader needs to be public for all the classes that modify it
 public:

@@ -15,27 +15,29 @@ void Skybox::update(double dt) {
 }
 
 void Skybox::draw() {
+    glDepthMask(GL_FALSE);
+    glDepthFunc(GL_LEQUAL);
+
+
     shader->use();
     shader->setInt("skybox", 0);
-    shader->setInt("normalMap", 1);
     shader->setFloat("offset", SDL_GetTicks64() / 100000.f);
 
     // diffuse map
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textures[0]);
-
-    // normal map
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, textures[1]);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureId);
 
     glBindVertexArray(vaoId);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    glDepthMask(GL_TRUE);
 }
 
 struct SkyboxVertex {
+    SkyboxVertex(float x, float y, float z): position(x, y, z), textureCoords() {}
     SkyboxVertex(float x, float y, float z, float s, float t) : position(x, y, z), textureCoords(s, t) {}
 
     glm::vec3 position;
@@ -45,16 +47,51 @@ struct SkyboxVertex {
 Skybox::Skybox(GLushort *texture) {
     glGenVertexArrays(1, &vaoId);
     glGenBuffers(1, &vboId);
-    glGenTextures(2, textures);
+    glGenTextures(1, &textureId);
 
     std::vector<SkyboxVertex> vertices {
-        { -100.f, -100.f, 10.f, 0.f, 0.f},
-        {-100.f, 100.f, 10.f, 0.f, 1.f},
-        {100.f, 100.f, 10.f, 1.f, 1.f},
+            // positions
+            {-1.0f, 1.0f, -1.0f},
+            {-1.0f, -1.0f, -1.0f},
+            {1.0f, -1.0f, -1.0f},
+            {1.0f, -1.0f, -1.0f},
+            {1.0f, 1.0f, -1.0f},
+            {-1.0f, 1.0f, -1.0f},
 
-        {-100.f, -100.f, 10.f, 0.f, 0.f},
-        {100.f, 100.f, 10.f, 1.f, 1.f},
-        {100.f, -100.f, 10.f, 1.f, 0.f}
+            {-1.0f, -1.0f, 1.0f},
+            {-1.0f, -1.0f, -1.0f},
+            {-1.0f, 1.0f, -1.0f},
+            {-1.0f, 1.0f, -1.0f},
+            {-1.0f, 1.0f, 1.0f},
+            {-1.0f, -1.0f, 1.0f},
+
+            {1.0f, -1.0f, -1.0f},
+            {1.0f, -1.0f, 1.0f},
+            {1.0f, 1.0f, 1.0f},
+            {1.0f, 1.0f, 1.0f},
+            {1.0f, 1.0f, -1.0f},
+            {1.0f, -1.0f, -1.0f},
+
+            {-1.0f, -1.0f, 1.0f},
+            {-1.0f, 1.0f, 1.0f},
+            {1.0f, 1.0f, 1.0f},
+            {1.0f, 1.0f, 1.0f},
+            {1.0f, -1.0f, 1.0f},
+            {-1.0f, -1.0f, 1.0f},
+
+            {-1.0f, 1.0f, -1.0f},
+            {1.0f, 1.0f, -1.0f},
+            {1.0f, 1.0f, 1.0f},
+            {1.0f, 1.0f, 1.0f},
+            {-1.0f, 1.0f, 1.0f},
+            {-1.0f, 1.0f, -1.0f},
+
+            {-1.0f, -1.0f, -1.0f},
+            {-1.0f, -1.0f, 1.0f},
+            {1.0f, -1.0f, -1.0f},
+            {1.0f, -1.0f, -1.0f},
+            {-1.0f, -1.0f, 1.0f},
+            {1.0f, -1.0f, 1.0f}
     };
 
     glBindVertexArray(vaoId);
@@ -64,9 +101,6 @@ Skybox::Skybox(GLushort *texture) {
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), (void*) offsetof(SkyboxVertex, position));
-
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), (void*) offsetof(SkyboxVertex, textureCoords));
     }
     glBindVertexArray(0);
 
@@ -75,38 +109,28 @@ Skybox::Skybox(GLushort *texture) {
     shader = Shader::FromFiles("resources/shaders/Skybox.vert", "resources/shaders/Skybox.frag");
 
     // load texture
-    glBindTexture(GL_TEXTURE_2D, textures[0]);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureId);
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_REPEAT);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, width, height, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, texture);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB5_A1, width, height, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, texture);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB5_A1, width, height, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, texture);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB5_A1, width, height, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, texture);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB5_A1, width, height, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, texture);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB5_A1, width, height, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, texture);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB5_A1, width, height, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, texture);
+
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    // gonna convert to grayscale for normal mapping
-    auto normals = to_grayscale(texture, 256, 256);
-
-    glBindTexture(GL_TEXTURE_2D, textures[1]);
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, width, height, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &normals[0]);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
 Skybox::~Skybox() {
     glDeleteVertexArrays(1, &vaoId);
     glDeleteBuffers(1, &vboId);
-    glDeleteTextures(2, textures);
+    glDeleteTextures(1, &textureId);
 }

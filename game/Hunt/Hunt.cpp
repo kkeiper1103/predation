@@ -127,11 +127,11 @@ void Hunt::gui(nk_context *ctx) {
 void Hunt::render() {
     if(isPaused) return;
 
-    // draw skybox first, so that it's obscured by the rest of the stuff
-    DrawSkybox();
 
     mesh->draw();
 
+    // render after everything else is filled so we only fill pixels that haven't been rendered to
+    DrawSkybox();
 
 /*
     // draw test image

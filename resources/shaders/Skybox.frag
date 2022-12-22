@@ -1,16 +1,16 @@
 #version 430 core
 
-in vec2 TexCoords; // direction vector representing a 3D texture coordinate
+in vec3 TexCoords; // direction vector representing a 3D texture coordinate
 
 #include "_uniforms.glsl"
 
 uniform float offset;
-uniform sampler2D skybox; // cubemap texture sampler
-uniform sampler2D normalMap;
+uniform samplerCube skybox; // cubemap texture sampler
 
 out vec4 FragColor;
 
 void main()
 {
-    FragColor = texture(skybox, vec2(TexCoords) + vec2(offset, offset / 2));
+    // animate the texture in the x direction
+    FragColor = texture(skybox, vec3(TexCoords) + vec3(-offset, 0, 0));
 }

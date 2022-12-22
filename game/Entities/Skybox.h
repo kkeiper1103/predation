@@ -12,7 +12,7 @@ class Skybox {
 protected:
     GLuint vaoId{0};
     GLuint vboId{0};
-    GLuint textureId{0};
+    GLuint textures[2] = {0, 0};
 
     int width{256};
     int height{128};

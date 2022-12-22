@@ -13,6 +13,7 @@ set(SOURCES
         src/ocarn2.cpp
 
         src/utils/Timer.cpp
+        src/utils/convert_rgb5_a1_to_grayscale.cpp
 
         src/graphics/Framebuffer.cpp
         src/graphics/Mesh.cpp
@@ -27,6 +28,8 @@ set(SOURCES
         game/Entities/Animal.cpp
         game/Entities/Hunter.cpp
         game/Entities/Skybox.cpp
+        game/Entities/EntityMesh.cpp
+
 
         vendor/nuklear/nuklear.c
         vendor/easyloggingpp/easylogging++.cc

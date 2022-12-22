@@ -1,16 +1,16 @@
 #version 430 core
 
-in vec3 fNormal;
 in vec2 fTextureCoords;
 
 #include "_uniforms.glsl"
 
-uniform sampler2D skin;
+uniform sampler2D diffuse;
+uniform sampler2D specular;
 
 out vec4 FragColor;
 
 void main() {
-    FragColor = vec4(1, 1, 1, 1);
+    FragColor = texture(diffuse, fTextureCoords);
 
     // FragColor = texture(skin, fTextureCoords);
 }

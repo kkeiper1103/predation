@@ -204,10 +204,9 @@ Application &Application::configure(ApplicationConfig config) {
 
 
 void Application::render(AppLogic* logic) {
-    glEnable(GL_DEPTH_TEST | GL_SCISSOR_TEST | GL_CULL_FACE);
-    glCullFace(GL_CW);
+    glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-    glClearDepth(1000.f); // @todo make this configurable and matchng to projection far plane
+    glClearDepth(1000.f); // make this configurable, something like 1000.f * GameSettings::activeConfig()->view_range
     glClearColor(.5, .5, .5, 1);
     glViewport(0, 0, config.width, config.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

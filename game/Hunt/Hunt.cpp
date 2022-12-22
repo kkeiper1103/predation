@@ -22,7 +22,7 @@ Hunt::Hunt(GameWorld* parent, const AreaEntry &area, std::vector<AnimalEntry> an
 
     // now we do it again to make it chunked into smaller sizes
     // carn2 and ice age should give us 32 chunks across
-    terrain = std::make_unique<ChunkedTerrain>(&map, &rsc, ceil(sqrt(mapsize)));
+    // terrain = std::make_unique<ChunkedTerrain>(&map, &rsc, ceil(sqrt(mapsize)));
 
 
     animalMeshes.resize(animals.size());
@@ -46,26 +46,18 @@ Hunt::Hunt(GameWorld* parent, const AreaEntry &area, std::vector<AnimalEntry> an
         this->animals.push_back( std::make_shared<Animal>() );
     }
 
+    float width = (&app()->config)->width,
+            height = (&app()->config)->height;
+
     // build the view and projection matrices
     view = glm::lookAt(cameraPosition, cameraPosition + cameraTarget, cameraUp);
-
-    float width = (&app()->config)->width,
-        height = (&app()->config)->height;
-
-    projection = glm::perspective(glm::radians(45.f), width / height, .1f, 1000.f);
-
-    // @todo
-    if(!animalMeshes.empty()) {
-        mesh = std::make_unique<GLMesh>( &animalMeshes[0] );
-
-        mesh->shader->setMat4("view", view);
-        mesh->shader->setMat4("projection", view);
-        mesh->shader->setMat4("model", glm::mat4(1.f));
-    }
-
+    projection = glm::perspective(glm::radians(parent->gameSettings.fov), width / height, .1f, 1000.f);
 
     // make skybox for data
     skybox = std::make_unique<Skybox>( rsc.sky[parent->huntConfig.timeOfDay] );
+
+    // make mesh for testing
+    mesh = std::make_unique<EntityMesh>( &animalMeshes[0] );
 }
 
 Hunt::~Hunt() {
@@ -95,16 +87,16 @@ void Hunt::input(SDL_Event *e) {
 void Hunt::update(double dt) {
     if(isPaused) return;
 
-
-    //
-    if(mesh != nullptr) {
-        mesh->shader->setMat4("projection", projection);
-        mesh->shader->setMat4("view", view);
-        mesh->shader->setMat4("model", glm::mat4(1.f)); // the terrain shader doesn't need to move the terrain obj around
-    }
-
     skybox->shader->setMat4("view", view);
     skybox->shader->setMat4("projection", projection);
+    skybox->shader->setMat4("model", glm::mat4(1.f));
+
+    mesh->shader->setMat4("view", view);
+    mesh->shader->setMat4("projection", projection);
+
+    glm::mat4 model(1.f);
+    model = glm::rotate(model, glm::radians(SDL_GetTicks64() / 100.f), glm::vec3(0, 1, 0));
+    mesh->shader->setMat4("model", model);
 
     for(auto& animal: animals) {
         // UpdateAnimal( *animal );
@@ -137,6 +129,10 @@ void Hunt::render() {
 
     // draw skybox first, so that it's obscured by the rest of the stuff
     DrawSkybox();
+
+    mesh->draw();
+
+
 /*
     // draw test image
     if(mesh != nullptr) mesh->draw();

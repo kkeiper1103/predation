@@ -730,6 +730,12 @@ void GameWorld::LaunchHunt(AreaEntry area, std::vector<AnimalEntry> animals, std
         LOG(INFO) << w.name;
     LOG(INFO) << std::endl;
 
-    //
-    activeHunt = std::make_unique<Hunt>( this,area, animals, weapons );
+    // can't start hunt without an animal or gun
+    if(animals.empty() || weapons.empty()) {
+        state = GS_HUNTSETUP;
+    }
+    else {
+        // all good, start hunting
+        activeHunt = std::make_unique<Hunt>( this, area, animals, weapons );
+    }
 }

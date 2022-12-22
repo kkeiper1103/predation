@@ -20,6 +20,7 @@
 #include "Entities/Animal.h"
 #include "Hunt/Terrain/ChunkedTerrain.h"
 #include "Entities/Skybox.h"
+#include "Entities/EntityMesh.h"
 
 // forward declaration for parent/child relationship
 class GameWorld;
@@ -96,7 +97,7 @@ class Hunt {
 public:
     // @todo move camera to player class
     // as the camera will always be relative to the player
-    glm::vec3 cameraPosition{0, 0, 100};
+    glm::vec3 cameraPosition{0, 0, 500};
     glm::vec3 cameraTarget{0, 0, -1};
     glm::vec3 cameraUp{0, 1, 0};
     glm::mat4 view{1};
@@ -119,7 +120,7 @@ private:
     std::unique_ptr<Skybox> skybox = nullptr;
 
     // test mesh
-    std::unique_ptr<GLMesh> mesh = nullptr;
+    std::unique_ptr<EntityMesh> mesh = nullptr;
 
 public:
     // used to show the pause menu stuff

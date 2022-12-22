@@ -1,0 +1,9 @@
+cmake-build-*
+*.log
+
+assets.txt
+profiles.dat
+settings.dat
+
+resources/images/skybox
+skymap.bmp

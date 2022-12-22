@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Carnivores Ice Age is designed to abuse windows being a case-insensitive filesystem
+# Ice Age is especially egregious with this, regularly mispelling the case of files, knowing windows will still find it
+# for example, all the .car files in _RES.TXT are spelled completely lowercase, but start with Sentence style capitalization.
+
+# carnivores 2 is fairly consistent, though, with all files being uppercased.
+# because of this, I decided to design the engine to search for ALLCAPS filenames, and this script is a command to be ran in every folder that contains asset files
+# to rename them to the linux-compatible version
+
+# the genius of this all is that windows is case-insensitive; this script isn't needed on windows because the files are found just fine
+
+for i in *; do mv $i `echo $i | tr [:lower:] [:upper:]`; done

@@ -5,9 +5,12 @@
 #ifndef PREDATION_HUNTER_H
 #define PREDATION_HUNTER_H
 
+#include "EntityMesh.h"
 
 class Hunter {
-
+protected:
+    // unowned pointer. do not delete
+    EntityMesh* mesh = nullptr;
 };
 
 

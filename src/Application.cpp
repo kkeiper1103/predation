@@ -144,6 +144,9 @@ Application::Application() {
 
     // resize and set titles and everything
     configure(config);
+
+    // set relative mouse mode
+    SDL_SetWindowGrab(window, SDL_TRUE);
 }
 
 Application::~Application() {

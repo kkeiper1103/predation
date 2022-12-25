@@ -5,6 +5,8 @@
 #ifndef PREDATION_GAMESETTINGS_H
 #define PREDATION_GAMESETTINGS_H
 
+#include <fstream>
+#include <easyloggingpp/easylogging++.h>
 #include <SDL2/SDL.h>
 
 enum Measurements {
@@ -57,6 +59,28 @@ struct GameSettings {
 
     // controls
     KeyBindings controls;
+
+
+
+
+    inline static GameSettings Get() {
+        GameSettings settings {};
+
+        std::fstream f("resources/settings.dat", f.binary | f.in);
+
+        if(!f.is_open()) {
+            LOG(ERROR) << "Unable to Read Settings File!";
+        }
+        else {
+            f.read((char*) &settings, sizeof(GameSettings));
+
+            f.close();
+        }
+
+        return settings;
+    }
 };
+
+
 
 #endif //PREDATION_GAMESETTINGS_H

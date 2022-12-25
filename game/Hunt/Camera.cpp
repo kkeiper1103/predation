@@ -1,0 +1,51 @@
+//
+// Created by kkeiper1103 on 12/23/22.
+//
+
+#include "Camera.h"
+
+#include "Hunt.h"
+#include "Application.h"
+
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/matrix_clip_space.hpp"
+#include "GameSettings.h"
+
+Camera::Camera(Hunt* parent, glm::vec3 position, glm::vec3 target) : parent{parent}, position{position}, target{target}, up{0, 1, 0} {
+    SDL_ShowCursor(SDL_DISABLE);
+
+    float width = (&app()->config)->width,
+            height = (&app()->config)->height;
+
+    auto gameSettings = GameSettings::Get();
+
+    // build the view and projection matrices
+    // @todo get gameSettings singleton or something
+    projection = glm::perspective(glm::radians( gameSettings.fov ), width / height, .1f, 1000.f);
+}
+
+Camera::~Camera() {
+    SDL_ShowCursor(SDL_ENABLE);
+}
+
+void Camera::input(SDL_Event* e) {
+    if(e->type == SDL_MOUSEMOTION) {
+        printf("Movement Amount: %d, %d\n", e->motion.xrel, e->motion.yrel);
+
+
+
+    }
+}
+
+void Camera::update(double dt) {
+    position = parent->player.position;
+    position.y += 5;
+}
+
+glm::mat4 Camera::GetViewMatrix() {
+    return glm::lookAt(position, position + target, up);
+}
+
+glm::mat4 Camera::GetProjectionMatrix() {
+    return projection;
+}

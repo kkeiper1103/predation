@@ -21,9 +21,14 @@ struct TerrainVertex {
 struct TerrainChunk {
     GLuint vaoId{0};
     GLuint bufferId{0};
+    GLuint eboId{0};
 
     std::vector<TerrainVertex> data;
     int vertexCount = 0;
+    int indexCount = 0;
+
+    int numStrips{0};
+    int numVertsPerStrip{0};
 };
 
 class ChunkedTerrain {
@@ -35,8 +40,7 @@ protected:
     OCARN2::Map* map = nullptr;
     OCARN2::Rsc* rsc = nullptr;
 
-    friend class Hunt;
-    std::shared_ptr<Shader> shader;
+    bool drawAll = false;
 
 private:
     void UploadTexture();
@@ -44,6 +48,7 @@ private:
     std::vector<TerrainVertex> GetRegion(int chunkX, int chunkZ, int valuesPerChunkRow);
 
 public:
+    std::shared_ptr<Shader> shader;
     int chunksPerSide;
 
     ChunkedTerrain(OCARN2::Map* map, OCARN2::Rsc* rsc, int chunksPerSide);
@@ -51,6 +56,10 @@ public:
 
 
     void draw(int chunkX, int chunkZ);
+
+
+    float GetHeight(int x, int z);
+    float GetHeight(int idx);
 };
 
 

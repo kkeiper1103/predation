@@ -3,3 +3,9 @@
 //
 
 #include "Animal.h"
+
+void Animal::draw() {
+    mesh->shader->setMat4("model", model);
+
+    mesh->draw();
+}

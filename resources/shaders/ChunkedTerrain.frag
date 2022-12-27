@@ -11,5 +11,5 @@ uniform sampler2DArray terrain;
 out vec4 FragColor;
 
 void main() {
-    FragColor = texture(terrain, fTexture);
+    FragColor = applyLighting( texture(terrain, fTexture).rgb, fNormal, fPosition );
 }

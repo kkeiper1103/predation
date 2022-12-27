@@ -24,6 +24,7 @@ set(SOURCES
         game/World/GameWorld.cpp
         game/Hunt/Hunt.cpp
         game/Hunt/Terrain/ChunkedTerrain.cpp
+        game/Hunt/Terrain/SmoothedTerrain.cpp
         game/Hunt/Camera.cpp
 
         game/Entities/Animal.cpp

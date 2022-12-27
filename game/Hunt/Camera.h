@@ -15,9 +15,13 @@ class Camera {
 protected:
     Hunt* parent = nullptr;
 
+public:
     glm::vec3 position {64, 64, 64};
+    glm::vec3 rotation {0, 0, 0};
     glm::vec3 target {0, -1, -1};
     glm::vec3 up {0, 1, 0};
+
+protected:
 
     glm::mat4 projection {1};
 

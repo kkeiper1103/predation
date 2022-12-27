@@ -23,12 +23,8 @@ struct TerrainChunk {
     GLuint bufferId{0};
     GLuint eboId{0};
 
-    std::vector<TerrainVertex> data;
     int vertexCount = 0;
-    int indexCount = 0;
-
-    int numStrips{0};
-    int numVertsPerStrip{0};
+    std::vector<TerrainVertex> data;
 };
 
 class ChunkedTerrain {
@@ -47,6 +43,8 @@ private:
 
     std::vector<TerrainVertex> GetRegion(int chunkX, int chunkZ, int valuesPerChunkRow);
 
+    std::vector<glm::vec3> spawns;
+
 public:
     std::shared_ptr<Shader> shader;
     int chunksPerSide;
@@ -60,6 +58,8 @@ public:
 
     float GetHeight(int x, int z);
     float GetHeight(int idx);
+
+    glm::vec3 GetRandomSpawnLocation();
 };
 
 

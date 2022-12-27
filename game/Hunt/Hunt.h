@@ -22,12 +22,18 @@
 #include "Entities/Skybox.h"
 #include "Entities/EntityMesh.h"
 #include "Camera.h"
+#include "Entities/Hunter.h"
 
 // forward declaration for parent/child relationship
 class GameWorld;
 
 struct Player {
-    glm::vec3 position{512, 512, 512};
+    glm::vec3 position {0, 0, 0};
+    glm::vec3 rotation {0, 0, 0};
+    glm::vec3 velocity {5, -9.8, 5};
+
+    void draw() {}
+    void update(double dt) {}
 };
 
 class Hunt {
@@ -47,6 +53,10 @@ private:
     //
     friend class Camera;
     Player player;
+
+
+    std::unique_ptr<Hunter> hunter;
+
     std::vector<AnimalPtr> animals;
 
     std::unique_ptr<Skybox> skybox = nullptr;

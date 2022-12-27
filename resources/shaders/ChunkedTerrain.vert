@@ -14,7 +14,7 @@ void main() {
 
     gl_Position = projection * view * model * vec4(vPosition, 1);
 
-    fPosition = vPosition;
+    fPosition = vec3(model * vec4(vPosition, 1));
     fTexture = vTexture;
-    fNormal = vNormal;
+    fNormal = mat3(transpose(inverse(model))) * vNormal;
 }

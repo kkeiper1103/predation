@@ -29,17 +29,15 @@ Camera::~Camera() {
 }
 
 void Camera::input(SDL_Event* e) {
-    if(e->type == SDL_MOUSEMOTION) {
-        printf("Movement Amount: %d, %d\n", e->motion.xrel, e->motion.yrel);
-
-
-
-    }
 }
 
 void Camera::update(double dt) {
+    rotation = parent->player.rotation;
+
     position = parent->player.position;
     position.y += 5;
+
+    target = glm::normalize(rotation);
 }
 
 glm::mat4 Camera::GetViewMatrix() {

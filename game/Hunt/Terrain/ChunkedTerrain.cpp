@@ -15,19 +15,6 @@ ChunkedTerrain::ChunkedTerrain(OCARN2::Map *map, OCARN2::Rsc* rsc, int chunksPer
         chunks[z].resize(chunksPerSide);
     }
 
-    std::vector<GLushort> indices;
-    // should the indices be the same for all chunks, since they reset?
-    int width = 1024 / chunksPerSide,
-        height = width;
-
-    for(unsigned int i = 0; i < height-1; i++) {
-        for(unsigned int j = 0; j < width; j++) {
-            for(unsigned int k = 0; k < 2; k++) {
-                indices.push_back(j + width * (i + k));
-            }
-        }
-    }
-
     // now, fill the chunks
     for(int z=0; z < chunksPerSide; z++) {
         for(int x = 0; x < chunksPerSide; x++) {
@@ -36,9 +23,6 @@ ChunkedTerrain::ChunkedTerrain(OCARN2::Map *map, OCARN2::Rsc* rsc, int chunksPer
             auto data = GetRegion(x, z, 1024 / chunksPerSide);
             chunk.data = data;
             chunk.vertexCount = data.size();
-            chunk.indexCount = indices.size();
-            chunk.numVertsPerStrip = width * 2;
-            chunk.numStrips = height - 1;
 
             glGenVertexArrays(1, &chunk.vaoId);
             glBindVertexArray(chunk.vaoId);
@@ -46,10 +30,6 @@ ChunkedTerrain::ChunkedTerrain(OCARN2::Map *map, OCARN2::Rsc* rsc, int chunksPer
                 glGenBuffers(1, &chunk.bufferId);
                 glBindBuffer(GL_ARRAY_BUFFER, chunk.bufferId);
                 glBufferData(GL_ARRAY_BUFFER, sizeof(TerrainVertex) * data.size(), &data[0], GL_STATIC_DRAW);
-
-                glGenBuffers(1, &chunk.eboId);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, chunk.eboId);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * indices.size(), &indices[0], GL_STATIC_DRAW);
 
                 glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), (void*) offsetof(TerrainVertex, position));
                 glEnableVertexAttribArray(0);
@@ -69,6 +49,13 @@ ChunkedTerrain::ChunkedTerrain(OCARN2::Map *map, OCARN2::Rsc* rsc, int chunksPer
 
     // create shader for class
     shader = Shader::FromFiles("resources/shaders/ChunkedTerrain.vert", "resources/shaders/ChunkedTerrain.frag");
+
+    // set time of day lighting?
+    // shouldn't this really be a ubo, not an individual uniform for terrain?
+    shader->setVec3("lights[0].diffuse", { .5, .5, .5 });
+    shader->setVec3("lights[0].ambient", {.1, .1, .1});
+    shader->setVec3("lights[0].specular", { 1, 1, 1 });
+    shader->setFloat("lights[0].attenuation", .8);
 }
 
 ChunkedTerrain::~ChunkedTerrain() {
@@ -92,30 +79,30 @@ void ChunkedTerrain::draw(int chunkX, int chunkZ) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D_ARRAY, textureId);
 
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_CW);
+
     if(drawAll) {
         for(auto& row: chunks)
             for(auto& cell: row) {
                 glBindVertexArray(cell.vaoId);
-                // glDrawArrays(GL_LINES, 0, cell.vertexCount);
-
-                for(auto strip = 0; strip < cell.numStrips; ++strip)
-                    glDrawElements(GL_TRIANGLE_STRIP, cell.numVertsPerStrip, GL_UNSIGNED_SHORT, (void*)(sizeof(unsigned short) * cell.numVertsPerStrip * strip));
+                glDrawArrays(GL_TRIANGLES, 0, cell.vertexCount);
             }
     }
     else {
-        int chunkRadius = 2; // number of chunks to draw in each direction
+        int chunkRadius = 5; // number of chunks to draw in each direction
+
         for( int z = std::max(chunkZ - chunkRadius, 0); z < std::min(chunkZ + chunkRadius, chunksPerSide -1); z++) {
             for( int x = std::max(chunkX - chunkRadius, 0); x < std::min(chunkX + chunkRadius, chunksPerSide -1); x++ ) {
-
                 auto& cell = chunks[z][x];
 
                 glBindVertexArray(cell.vaoId);
-                for(auto strip = 0; strip < cell.numStrips; ++strip)
-                    glDrawElements(GL_TRIANGLE_STRIP, cell.numVertsPerStrip, GL_UNSIGNED_SHORT, (void*)(sizeof(unsigned short) * cell.numVertsPerStrip * strip));
+                glDrawArrays(GL_TRIANGLES, 0, cell.vertexCount);
             }
         }
     }
 
+    glDisable(GL_CULL_FACE);
 
     glBindVertexArray(0);
 
@@ -144,25 +131,112 @@ void ChunkedTerrain::UploadTexture() {
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
+
+glm::vec2 rotateUV(glm::vec2 uv, float rotation) {
+    auto pivot = glm::vec2{ .5, .5 };
+
+    float cosa = cos(M_PI / 2.f * rotation);
+    float sina = sin(M_PI / 2.f * rotation);
+
+    uv -= pivot;
+    return glm::vec2(
+            cosa * uv.x - sina * uv.y,
+            cosa * uv.y + sina * uv.x
+    ) + pivot;
+}
+
+// get triangle normal
+glm::vec3 calculateTriangleNormal( glm::vec3 A, glm::vec3 B ) {
+    return glm::normalize( glm::cross(A, B) );
+}
+
 std::vector<TerrainVertex> ChunkedTerrain::GetRegion(int chunkX, int chunkZ, int valuesPerChunkRow) {
 
     int horizontalOffset = chunkX * chunksPerSide,
-        verticalOffset = chunkZ * chunksPerSide;
+            verticalOffset = chunkZ * chunksPerSide;
 
     std::vector<TerrainVertex> vertices;
 
-    for(auto z = verticalOffset; z < verticalOffset + valuesPerChunkRow; z++) {
-        for(auto x = horizontalOffset; x < horizontalOffset + valuesPerChunkRow; x++) {
-            // @todo make this configurable
+
+    for(auto z = verticalOffset; z < (verticalOffset + valuesPerChunkRow); z++) {
+        for(auto x = horizontalOffset; x < (horizontalOffset + valuesPerChunkRow); x++) {
             int idx = z * 1024 + x;
 
-            // not sure?
-            // original carn2 archive source says the Y is scaled by 64 and the x/z are scaled by 256. seems HUGE
+            glm::vec2 coords[6] = {
+                {0, 0},
+                {1, 0},
+                {1, 1},
+                {0, 0},
+                {1, 1},
+                {0, 1}
+            };
+
+            int flags = map->bitflagMap[z * 1024 + x];
+
+            float amount = 0;
+            if((flags & 0x01) == 0x0001) amount += glm::radians(-90.f);
+            if((flags & 0x10) == 0x0010) amount += glm::radians(-90.f);
+            if((flags & 0x11) == 0x0011) amount += glm::radians(-90.f);
+
+            uint rotation = (flags&OCARN2::BF_TEXTURE_DIRECTION | (flags&OCARN2::BF_REVERSE << 6) ) & 3u;
+
+            for(auto& tex: coords) {
+                tex = rotateUV(tex, rotation);
+            }
+
+            glm::vec3 v1 = {x, GetHeight(z * 1024 + x), z},
+                v2 = {x + 1, GetHeight(z * 1024 + (x + 1)), z},
+                v3 = {x + 1, GetHeight((z + 1) * 1024 + (x + 1)), z + 1};
+            auto normalA = calculateTriangleNormal(v2 - v1, v3 - v1);
+
+            // first triangle upper left
+            // ccw winding
             vertices.emplace_back(TerrainVertex {
-                {x, GetHeight(idx), z},
-                {.5, .5, map->textureMap[idx]},
-                {0, 0, 0}
+                    v1,
+                    {coords[0].s, coords[0].t, map->textureMap[idx]},
+                    normalA
             });
+            vertices.emplace_back(TerrainVertex {
+                    v3,
+                    {coords[2].s, coords[2].t, map->textureMap[idx]},
+                    normalA
+            });
+            vertices.emplace_back(TerrainVertex {
+                    v2,
+                    {coords[1].s, coords[1].t, map->textureMap[idx]},
+                    normalA
+            });
+
+
+            v1 = {x, GetHeight(z * 1024 + x), z},
+                v2 = {x + 1, GetHeight((z + 1) * 1024 + (x + 1)), z + 1},
+                v3 = {x, GetHeight((z + 1) * 1024 + x), z + 1};
+            auto normalB = calculateTriangleNormal(v2 - v1, v3 - v1);
+
+            // second triangle, bottom right
+            // ccw winding
+            vertices.emplace_back(TerrainVertex {
+                    v1,
+                    {coords[3].s, coords[3].t, map->textureMap[idx]},
+                    normalB
+            });
+            vertices.emplace_back(TerrainVertex {
+                    v3,
+                    {coords[5].s, coords[5].t, map->textureMap[idx]},
+                    normalB
+            });
+            vertices.emplace_back(TerrainVertex {
+                    v2,
+                    {coords[4].s, coords[4].t, map->textureMap[idx]},
+                    normalB
+            });
+
+            // now handle setting up spawn locations
+            if(map->objectMap[z * 1024 + x] == 254) {
+                map->objectMap[z * 1024 + x] = 255;
+
+                spawns.emplace_back( x, GetHeight(x, z), z );
+            }
         }
     }
 
@@ -174,5 +248,11 @@ float ChunkedTerrain::GetHeight(int x, int z) {
 }
 
 float ChunkedTerrain::GetHeight(int idx) {
-    return (float) map->heightMap[idx] / 2.f;
+    return (float) map->heightMap[idx] / 4.f;
+}
+
+glm::vec3 ChunkedTerrain::GetRandomSpawnLocation() {
+    if( spawns.empty() ) return glm::vec3 { 238, GetHeight(238, 278), 278 };
+
+    return spawns[rand() % (spawns.size() - 1)];
 }

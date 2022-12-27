@@ -717,7 +717,7 @@ void GameWorld::LoadAvailableWeapons(std::string &prefix, std::vector<int> price
 
 void GameWorld::LaunchHunt(AreaEntry area, std::vector<AnimalEntry> animals, std::vector<WeaponEntry> weapons) {
     LOG(INFO) << area.title;
-    LOG(INFO) << area.description;
+    LOG(INFO) << std::endl << area.description;
 
     LOG(INFO) << "Animals Selected";
     for(auto& a: animals) {

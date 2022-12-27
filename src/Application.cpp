@@ -3,6 +3,7 @@
 //
 
 #include "Application.h"
+#include "utils/Timer.h"
 
 #include <memory>
 
@@ -138,15 +139,14 @@ Application::Application() {
 
     SDL_GL_SetSwapInterval(1);
 
-    /*glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(GLDebugMessageCallback, NULL);*/
-
     // resize and set titles and everything
     configure(config);
 
     // set relative mouse mode
     SDL_SetWindowGrab(window, SDL_TRUE);
+
+    // @todo use real rng
+    srand(time(NULL));
 }
 
 Application::~Application() {
@@ -164,7 +164,7 @@ void Application::run(AppLogic* logic) {
         exit(EXIT_FAILURE);
     }
 
-
+    Timer t;
     while(running) {
         SDL_Event e;
 
@@ -177,9 +177,11 @@ void Application::run(AppLogic* logic) {
         }
         nk_input_end(nkContext);
 
-        logic->gui(nkContext);
-        logic->update(0.016);
+        t.tick([&](double dt) {
+            logic->update(dt);
+        });
 
+        logic->gui(nkContext);
         render(logic);
     }
 }

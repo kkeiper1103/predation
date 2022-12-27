@@ -11,14 +11,13 @@
 #include "Application.h"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
+#include "Hunt/Terrain/SmoothedTerrain.h"
 
 
 EntityMesh* Hunt::GetMeshForCharacter(OCARN2::Mesh* character) {
     if( !characters.contains(character->name) ) {
         characters[character->name] = std::make_unique<EntityMesh>(character);
     }
-
-    printf("%d characters in map\n", characters.size());
 
     return characters[character->name].get();
 }
@@ -67,15 +66,18 @@ Hunt::Hunt(GameWorld* parent, const AreaEntry &area, std::vector<AnimalEntry> an
         this->animals.push_back( std::make_shared<Animal>(characterMesh, glm::vec3 { xPosition++ * 200, 0, 200 }) );
     }
 
-    float width = (&app()->config)->width,
-            height = (&app()->config)->height;
-
-
-    // make skybox for data
+    // make skybox
     skybox = std::make_unique<Skybox>( rsc.sky[parent->huntConfig.timeOfDay] );
 
     // make mesh for testing
     mesh = std::make_unique<EntityMesh>( &animalMeshes[0] );
+
+    // set the player's position to one of the spawn points
+    player.position = terrain->GetRandomSpawnLocation();
+
+
+    //
+    hunter = std::make_unique<Hunter>(terrain->GetRandomSpawnLocation());
 }
 
 Hunt::~Hunt() {
@@ -99,23 +101,36 @@ void Hunt::input(SDL_Event *e) {
     }
 
     // don't move the camera when the pause menu is up, or else they'll be like WUT
-    if(!isPaused) camera.input(e);
+    if(!isPaused) {
+        hunter->input(e);
+
+        if(e->type == SDL_MOUSEMOTION) {
+            static float yaw = -90.f;
+            static float pitch = 25.f;
+
+            yaw += e->motion.xrel / 2.f;
+            pitch -= e->motion.yrel;
+
+            pitch = std::clamp(pitch, -89.f, 89.f);
+
+            player.rotation.x = cos(glm::radians(yaw));
+            player.rotation.z = sin(glm::radians(yaw));
+            player.rotation.y = sin(glm::radians(pitch));
+        }
+    }
 }
 
 void Hunt::update(double dt) {
     if(isPaused) return;
+
+    terrain->shader->setVec3("viewPosition", camera.position);
 
     skybox->shader->setMat4("view", glm::mat4(glm::mat3( camera.GetViewMatrix() )));
     skybox->shader->setMat4("projection", camera.GetProjectionMatrix());
 
     mesh->shader->setMat4("view", camera.GetViewMatrix());
     mesh->shader->setMat4("projection", camera.GetProjectionMatrix());
-
-    glm::mat4 model(1.f);
-    model = glm::scale(model, glm::vec3{ .05, .05, .05 });
-    model = glm::rotate(model, glm::radians(SDL_GetTicks64() / 100.f), glm::vec3(0, 1, 0));
-    model = glm::translate(model, glm::vec3 { 20, 0, -20 });
-    mesh->shader->setMat4("model", model);
+    mesh->shader->setMat4("model", glm::mat4(1.f));
 
     for(auto& animal: animals) {
         UpdateAnimal( animal.get() );
@@ -123,7 +138,6 @@ void Hunt::update(double dt) {
 
     // move player position for fun, testing
     auto keys = SDL_GetKeyboardState(nullptr);
-
 
     if(keys[SDL_SCANCODE_F6]) {
         printf( "Height At (%.2f, %.2f): %.3f\n", player.position.x, player.position.z, terrain->GetHeight(player.position.x, player.position.z) );
@@ -140,24 +154,21 @@ void Hunt::update(double dt) {
         );
     }
 
+    const float playerSpeed = 5.f;
     /**
      * @todo add slope checking *in the direction of the player*
      */
     if( keys[SDL_SCANCODE_D] ) {
-       /* float heightDifference =
-                terrain->GetHeight( floor(player.position.x), floor(player.position.z) ) -
-                terrain->GetHeight(floor(player.position.x) + 1, floor(player.position.z) + 1);*/
-
-        /*if( heightDifference >= 0 ) */player.position.x += .5;
+        player.position += glm::normalize(glm::cross(camera.target, camera.up)) * playerSpeed * (float) dt;
     }
     else if( keys[SDL_SCANCODE_A] ) {
-        player.position.x -= .5;
+        player.position -= glm::normalize(glm::cross(camera.target, camera.up)) * playerSpeed * (float) dt;
     }
 
     if( keys[SDL_SCANCODE_W] )
-        player.position.z -= .5;
+        player.position += playerSpeed * camera.target * (float) dt;
     else if( keys[SDL_SCANCODE_S] )
-        player.position.z += .5;
+        player.position -= playerSpeed * camera.target * (float) dt;
 
     player.position.x = std::clamp(player.position.x, 1.f, 1023.f);
     player.position.z = std::clamp(player.position.z, 1.f, 1023.f);

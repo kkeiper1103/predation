@@ -172,6 +172,35 @@ void Application::run(AppLogic* logic) {
         while(SDL_PollEvent(&e)) {
             if(e.type == SDL_QUIT) running = false;
 
+
+            if(e.type == SDL_KEYUP && e.key.keysym.scancode == SDL_SCANCODE_F11) {
+                int x = 0, y = 0;
+                int w = config.width, h = config.height;
+
+                Uint32 rmask, gmask, bmask, amask;
+
+                rmask = 0x000000ff;
+                gmask = 0x0000ff00;
+                bmask = 0x00ff0000;
+                amask = 0xff000000;
+
+                auto pixels = std::vector<uint8_t>(w * h * 4);
+                glReadPixels(x,y,w, h, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
+
+                for(int line = 0; line != h/2; ++line) {
+                    std::swap_ranges(
+                            pixels.begin() + 4 * w * line,
+                            pixels.begin() + 4 * w * (line+1),
+                            pixels.begin() + 4 * w * (h-line-1));
+                }
+
+                SDL_Surface * surf = SDL_CreateRGBSurfaceFrom(pixels.data(), w, h, 8*4, w*4, rmask, gmask, bmask, amask);
+                SDL_SaveBMP(surf, "screenshot.bmp");
+
+                SDL_FreeSurface(surf);
+            }
+
+
             logic->input(&e);
             nk_sdl_handle_event(&e);
         }

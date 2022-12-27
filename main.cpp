@@ -13,9 +13,9 @@ int main(int argc, char* argv[]) {
     GameWorld logic;
 
     app()->configure({
-        1920,
-        1080,
-        SDL_WINDOW_FULLSCREEN,
+        1600,
+        900,
+        0,
         "Predation++: Carnivores Clone"
     }).run(&logic);
 

@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
     app()->configure({
         1920,
         1080,
-        SDL_WINDOW_FULLSCREEN_DESKTOP,
+        SDL_WINDOW_FULLSCREEN,
         "Predation++: Carnivores Clone"
     }).run(&logic);
 

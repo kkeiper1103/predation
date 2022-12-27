@@ -8,3 +8,11 @@ be set by creating or modifying `resources/assets.txt`
 
 ## Media
 
+WIP Home Screen
+![Home Screen](media/home-screen.bmp)
+
+Hunt Setup Screen
+![Hunt Setup](media/hunt-setup.bmp)
+
+Active Hunt
+![Active Hunt](media/active-hunt.bmp)

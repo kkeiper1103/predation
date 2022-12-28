@@ -19,3 +19,15 @@ Active Hunt
 ![Map Objects Loaded](media/scenery.png)
 
 ## Known Bugs (So Far. Probably more broken things than working ones)
+- Very jagged terrain. Not sure how to smooth yet
+- no dinosaurs rendering
+- camera is still attached to Hunt.cpp instead of the Hunter.cpp, although work has started
+- credits are not implemented yet, so all maps, dinos and guns are available
+- view range is hardcoded. needs added to GameSettings and given a control in the options screen.
+- add AABB collision bugs
+- Delpheus Hills: radio tower is mis-placed and missing midpiece.
+
+## Style Guide Rules
+- Any variables declared on the heap MUST use smart pointers (shared_ptr is preferred)
+- Prefer stack allocated variables (ie `GLushort texture[256 * 256];` instead of `GLushort* texture = new GLushort[256 * 256]`)
+- Use STL containers instead of pointer arrays `std::vector<GLushort> texture(size);` instead of `GLushort texture[size];`

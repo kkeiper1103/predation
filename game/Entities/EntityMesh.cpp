@@ -64,8 +64,6 @@ EntityMesh::EntityMesh(const OCARN2::Mesh *const data) {
         if (!B && !G && !R)
             A = 0;
 
-        printf("%d, %d, %d, %d\n", B, G, R, A);
-
         texture[i] = (B) + (G<<5) + (R<<10) + (A<<15);
     }
 

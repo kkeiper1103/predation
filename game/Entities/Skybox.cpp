@@ -11,7 +11,7 @@
 #include <SDL_timer.h>
 
 void Skybox::update(double dt) {
-
+    shader->setFloat("offset", SDL_GetTicks64() / 100000.f);
 }
 
 void Skybox::draw() {
@@ -21,7 +21,6 @@ void Skybox::draw() {
 
     shader->use();
     shader->setInt("skybox", 0);
-    shader->setFloat("offset", SDL_GetTicks64() / 100000.f);
 
     // diffuse map
     glActiveTexture(GL_TEXTURE0);

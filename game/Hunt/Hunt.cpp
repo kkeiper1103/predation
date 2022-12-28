@@ -82,9 +82,17 @@ Hunt::Hunt(GameWorld* parent, const AreaEntry &area, std::vector<AnimalEntry> an
     //
     hunter = std::make_unique<Hunter>(this,
                                       terrain->GetRandomSpawnLocation());
+
+
+
+    // move mouse to center and set relative?
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    SDL_WarpMouseInWindow(app()->window, app()->config.width / 2.f, app()->config.height / 2.f);
 }
 
 Hunt::~Hunt() {
+    SDL_SetRelativeMouseMode(SDL_FALSE);
+
     LOG(INFO) << "Unloading Resources";
 
     free_rsc(rsc);
@@ -102,6 +110,7 @@ void Hunt::input(SDL_Event *e) {
         isPaused = !isPaused;
 
         SDL_ShowCursor(isPaused);
+        SDL_SetRelativeMouseMode((SDL_bool) !isPaused);
     }
 
     // don't move the camera when the pause menu is up, or else they'll be like WUT
@@ -129,6 +138,7 @@ void Hunt::update(double dt) {
 
     terrain->shader->setVec3("viewPosition", camera.position);
 
+    skybox->update(dt);
     skybox->shader->setMat4("view", glm::mat4(glm::mat3( camera.GetViewMatrix() )));
     skybox->shader->setMat4("projection", camera.GetProjectionMatrix());
 
@@ -204,10 +214,6 @@ void Hunt::gui(nk_context *ctx) {
 }
 
 void Hunt::render() {
-    if(isPaused) return;
-
-/*
-    mesh->draw();*/
 
     DrawTerrainChunkAt((int) floor(player.position.x), (int) floor(player.position.z));
 
@@ -217,8 +223,8 @@ void Hunt::render() {
         for(int x = floor(player.position.x) - viewRadius / 2; x < floor(player.position.x) + viewRadius / 2; x++) {
             int idx = z * 1024 + x;
 
+            // if the item is not a spawn point, draw it
             if( map.objectMap[idx] < 254 ) {
-
                 terrainModels[ map.objectMap[idx] ]->drawAt(x, terrain->GetHeight(idx), z);
             }
         }
@@ -227,8 +233,8 @@ void Hunt::render() {
     for(auto& animalPtr: GetAnimalsInRadius((int) floor(player.position.x), (int) floor(player.position.z), 30.f)) {
         // DrawAnimal( animalPtr );
     }
-/*
-    DrawPlayer();*/
+
+    /*DrawPlayer();*/
 
     // render after everything else is filled, so we only fill pixels that haven't been rendered to
     DrawSkybox();
@@ -247,28 +253,6 @@ void Hunt::DrawTerrainChunkAt(int x, int z) {
     terrain->shader->setMat4("model", glm::mat4(1.f));
 
     terrain->draw(chunkX, chunkZ);
-
-    // no idea
-    for( int i=0; i < terrainModelUniforms.size(); i++ ) {
-        const auto& model = terrainModels[i];
-        model->shader->setInt("currentModel", i);
-
-        glBindVertexArray(model->vaoId);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, model->textures[0]);
-
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, model->textures[1]);
-
-        for(const auto& instance: terrainModelMat4s[i]) {
-            model->shader->setMat4("model", instance);
-
-            glDrawArrays(GL_TRIANGLES, 0, model->vertexCount);
-        }
-    }
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Hunt::UpdateAnimal( Animal* animal ) {
@@ -324,7 +308,7 @@ void Hunt::DecorateTerrain() {
             }
 
             // now, build the model. it's a pointer, so if it's null, it hasn't been built
-            if( !terrainModels[objectId] ) {
+            if( objectId < 254 && !terrainModels[objectId] ) {
                 auto& model = terrainModels[objectId];
                 auto& settings = rsc.models[objectId];
 

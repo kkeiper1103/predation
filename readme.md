@@ -17,3 +17,5 @@ Hunt Setup Screen
 Active Hunt
 ![Active Hunt](media/active-hunt.png)
 ![Map Objects Loaded](media/scenery.png)
+
+## Known Bugs (So Far. Probably more broken things than working ones)

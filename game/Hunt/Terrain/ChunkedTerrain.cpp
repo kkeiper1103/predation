@@ -90,7 +90,7 @@ void ChunkedTerrain::draw(int chunkX, int chunkZ) {
             }
     }
     else {
-        int chunkRadius = 5; // number of chunks to draw in each direction
+        int chunkRadius = 3; // number of chunks to draw in each direction
 
         for( int z = std::max(chunkZ - chunkRadius, 0); z < std::min(chunkZ + chunkRadius, chunksPerSide -1); z++) {
             for( int x = std::max(chunkX - chunkRadius, 0); x < std::min(chunkX + chunkRadius, chunksPerSide -1); x++ ) {
@@ -105,7 +105,6 @@ void ChunkedTerrain::draw(int chunkX, int chunkZ) {
     glDisable(GL_CULL_FACE);
 
     glBindVertexArray(0);
-
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 

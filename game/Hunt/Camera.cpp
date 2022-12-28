@@ -21,7 +21,7 @@ Camera::Camera(Hunt* parent, glm::vec3 position, glm::vec3 target) : parent{pare
 
     // build the view and projection matrices
     // @todo get gameSettings singleton or something
-    projection = glm::perspective(glm::radians( gameSettings.fov ), width / height, .1f, 1000.f);
+    projection = glm::perspective(glm::radians( gameSettings.fov ), width / height, .1f, 256.f);
 }
 
 Camera::~Camera() {

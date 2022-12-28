@@ -27,6 +27,12 @@ Active Hunt
 - add AABB collision bugs
 - Delpheus Hills: radio tower is mis-placed and missing midpiece.
 
+## Todos
+- Add Uniform Buffer Objects to the shaders, so we have unified uniforms
+- Implement AI (hooo boy is this a big one)
+- Render animations for models. Data is available, but haven't programmed the adapter yet
+- Add sounds from map and dinosaurs
+
 ## Style Guide Rules
 - Any variables declared on the heap MUST use smart pointers (shared_ptr is preferred)
 - Prefer stack allocated variables (ie `GLushort texture[256 * 256];` instead of `GLushort* texture = new GLushort[256 * 256]`)

@@ -8,7 +8,6 @@ layout(location = 1) in vec2 vTextureCoords;
 out vec2 fTextureCoords;
 
 void main() {
-
     gl_Position = projection * view * model * vec4(vPosition, 1);
 
     fTextureCoords = vTextureCoords;

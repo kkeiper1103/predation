@@ -12,5 +12,5 @@ out vec4 FragColor;
 void main() {
     FragColor = texture(diffuse, fTextureCoords);
 
-    // FragColor = texture(skin, fTextureCoords);
+    if(FragColor.a < 0.05) discard;
 }

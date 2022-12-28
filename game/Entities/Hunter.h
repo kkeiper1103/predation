@@ -8,6 +8,10 @@
 #include <glm/glm.hpp>
 #include <SDL_events.h>
 #include "EntityMesh.h"
+#include "Hunt/Camera.h"
+
+#include <memory>
+#include "Controls/Controller.h"
 
 class Hunt;
 
@@ -26,9 +30,12 @@ protected:
 
 
     std::shared_ptr<Shader> shader;
+    std::unique_ptr<Controller> controller;
+
+    Camera camera;
 
 public:
-    explicit Hunter(glm::vec3 position);
+    explicit Hunter(Hunt* parent, glm::vec3 position);
     ~Hunter();
 
     void input(SDL_Event* e);

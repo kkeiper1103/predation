@@ -35,7 +35,7 @@ void Camera::update(double dt) {
     rotation = parent->player.rotation;
 
     position = parent->player.position;
-    position.y += 5;
+    position.y += 2;
 
     target = glm::normalize(rotation);
 }

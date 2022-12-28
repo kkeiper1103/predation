@@ -68,6 +68,18 @@ private:
     std::map<std::string, std::unique_ptr<EntityMesh>> characters;
     EntityMesh* GetMeshForCharacter(OCARN2::Mesh* character);
 
+
+    // fields for the uniforms for instanced rendering of terrain decoration
+    struct TerrainModelUniform {
+        glm::vec3 position {0, 0, 0};
+        glm::vec3 rotation {0, 0, 0};
+        float scale {1.f};
+    };
+
+    std::vector< std::vector<TerrainModelUniform> > terrainModelUniforms;
+    std::vector< std::vector<glm::mat4> > terrainModelMat4s;
+    std::vector< std::unique_ptr<EntityMesh> > terrainModels;
+
 public:
     // used to show the pause menu stuff
     bool isPaused = false;
@@ -89,6 +101,8 @@ public:
     void DrawSkybox();
 
     std::vector<Animal*> GetAnimalsInRadius(int x, int z, float radius);
+
+    void DecorateTerrain();
 };
 
 

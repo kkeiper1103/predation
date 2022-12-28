@@ -7,6 +7,7 @@
 #include <memory>
 #include "utils/convert_rgb5_a1_to_grayscale.h"
 
+std::shared_ptr<Shader> EntityMesh::_shader = nullptr;
 
 struct EntityMeshVertex {
     EntityMeshVertex(float x, float y, float z, float s, float t) : position(x, y, z), textureCoords(s, t) {};
@@ -48,6 +49,26 @@ EntityMesh::EntityMesh(const OCARN2::Mesh *const data) {
     }
     glBindVertexArray(0);
 
+    // add the alpha channel, so we don't get black on the edge of the trees and stuff
+    GLushort texture[256 * 256];
+    memcpy(texture, data->textureData, data->textureSize);
+
+    //
+    for(int i=0; i < data->textureSize / 2; i++) {
+        auto& pixel = texture[i];
+
+        int B = ((pixel>> 0) & 31);
+        int G = ((pixel>> 5) & 31);
+        int R = ((pixel>>10) & 31);
+        int A = 1;
+        if (!B && !G && !R)
+            A = 0;
+
+        printf("%d, %d, %d, %d\n", B, G, R, A);
+
+        texture[i] = (B) + (G<<5) + (R<<10) + (A<<15);
+    }
+
     // now, bind textures
     // diffuse texture
     glBindTexture(GL_TEXTURE_2D, textures[0]);
@@ -58,13 +79,13 @@ EntityMesh::EntityMesh(const OCARN2::Mesh *const data) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, 256, 256, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, data->textureData);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, 256, 256, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, texture);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     // no need for extraneous reset bind texture call
 
     // normal texture
-    auto normals = to_grayscale(data->textureData, 256, 256);
+    auto specularMap = to_grayscale(texture, 256, 256);
     glBindTexture(GL_TEXTURE_2D, textures[1]);
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -73,13 +94,19 @@ EntityMesh::EntityMesh(const OCARN2::Mesh *const data) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, 256, 256, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &normals[0]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, 256, 256, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &specularMap[0]);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     glBindTexture(GL_TEXTURE_2D, 0);
 
     // lastly create shader
-    shader = Shader::FromFiles("resources/shaders/Mesh.vert", "resources/shaders/Mesh.frag");
+    if(_shader == nullptr)
+        _shader = Shader::FromFiles("resources/shaders/Mesh.vert", "resources/shaders/Mesh.frag");
+
+    shader = _shader;
+
+    // set flag for loading complete
+    ready = true;
 }
 
 EntityMesh::~EntityMesh() {

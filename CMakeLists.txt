@@ -32,6 +32,8 @@ set(SOURCES
         game/Entities/Skybox.cpp
         game/Entities/EntityMesh.cpp
 
+        game/Controls/KeyboardController.cpp
+        game/Controls/GamepadController.cpp
 
         vendor/nuklear/nuklear.c
         vendor/easyloggingpp/easylogging++.cc

@@ -35,6 +35,9 @@ Hunt::Hunt(GameWorld* parent, const AreaEntry &area, std::vector<AnimalEntry> an
     // carn2 and ice age should give us 32 chunks across
     terrain = std::make_unique<ChunkedTerrain>(&map, &rsc, ceil(sqrt(mapsize)));
 
+    // spawn all the meshes and models from the terrain
+    DecorateTerrain();
+
 
     animalMeshes.resize(animals.size());
     for(auto i=0; i < animals.size(); i++) {
@@ -77,7 +80,8 @@ Hunt::Hunt(GameWorld* parent, const AreaEntry &area, std::vector<AnimalEntry> an
 
 
     //
-    hunter = std::make_unique<Hunter>(terrain->GetRandomSpawnLocation());
+    hunter = std::make_unique<Hunter>(this,
+                                      terrain->GetRandomSpawnLocation());
 }
 
 Hunt::~Hunt() {
@@ -202,12 +206,23 @@ void Hunt::gui(nk_context *ctx) {
 void Hunt::render() {
     if(isPaused) return;
 
-
-    mesh->draw();
-
+/*
+    mesh->draw();*/
 
     DrawTerrainChunkAt((int) floor(player.position.x), (int) floor(player.position.z));
 
+    // get all terrain objects in radius
+    int viewRadius = 128;
+    for(int z = floor(player.position.z) - viewRadius / 2; z < floor(player.position.z) + viewRadius / 2; z++) {
+        for(int x = floor(player.position.x) - viewRadius / 2; x < floor(player.position.x) + viewRadius / 2; x++) {
+            int idx = z * 1024 + x;
+
+            if( map.objectMap[idx] < 254 ) {
+
+                terrainModels[ map.objectMap[idx] ]->drawAt(x, terrain->GetHeight(idx), z);
+            }
+        }
+    }
 
     for(auto& animalPtr: GetAnimalsInRadius((int) floor(player.position.x), (int) floor(player.position.z), 30.f)) {
         // DrawAnimal( animalPtr );
@@ -232,6 +247,28 @@ void Hunt::DrawTerrainChunkAt(int x, int z) {
     terrain->shader->setMat4("model", glm::mat4(1.f));
 
     terrain->draw(chunkX, chunkZ);
+
+    // no idea
+    for( int i=0; i < terrainModelUniforms.size(); i++ ) {
+        const auto& model = terrainModels[i];
+        model->shader->setInt("currentModel", i);
+
+        glBindVertexArray(model->vaoId);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, model->textures[0]);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, model->textures[1]);
+
+        for(const auto& instance: terrainModelMat4s[i]) {
+            model->shader->setMat4("model", instance);
+
+            glDrawArrays(GL_TRIANGLES, 0, model->vertexCount);
+        }
+    }
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Hunt::UpdateAnimal( Animal* animal ) {
@@ -260,4 +297,39 @@ std::vector<Animal*> Hunt::GetAnimalsInRadius(int x, int z, float radius) {
 
 void Hunt::DrawSkybox() {
     skybox->draw();
+}
+
+void Hunt::DecorateTerrain() {
+    const int MAP_SIZE = 1024;
+
+    terrainModelUniforms.resize(rsc.numModels);
+    terrainModelMat4s.resize(rsc.numModels);
+    terrainModels.resize(rsc.numModels);
+
+    for(int z=0; z < MAP_SIZE; z++) {
+        for(int x=0; x < MAP_SIZE; x++) {
+            int idx = z * MAP_SIZE + x;
+
+            int objectId = map.objectMap[idx],
+                objectHeight = map.objectHeightMap[idx],
+                objectRotation = (map.bitflagMap[idx] & OCARN2::BF_MODEL_DIRECTION);
+
+            // if the object id is lower than the size of the models array, we have a valid model id
+            if( objectId < rsc.numModels ) {
+                // for instanced rendering
+                terrainModelUniforms[objectId].push_back({
+                    .position = { x, objectHeight, z },
+                    .rotation = { 0, glm::radians(objectRotation * -90.f), 0}
+                });
+            }
+
+            // now, build the model. it's a pointer, so if it's null, it hasn't been built
+            if( !terrainModels[objectId] ) {
+                auto& model = terrainModels[objectId];
+                auto& settings = rsc.models[objectId];
+
+                terrainModels[objectId] = std::make_unique<EntityMesh>(&settings.mesh);
+            }
+        }
+    }
 }

@@ -17,12 +17,14 @@
 
 class EntityMesh {
 friend class Hunt;
+friend class Animal;
 protected:
     GLuint vaoId{0};
     GLuint vboId{0};
     GLuint textures[2] {0, 0};
     int vertexCount{0};
 
+    char name[32] = "Unnamed";
 
 public:
     static std::shared_ptr<Shader> _shader;
@@ -61,6 +63,7 @@ public:
     }
 
     void draw() {
+
         shader->use();
         shader->setInt("diffuse", 0);
         shader->setInt("specular", 1);

@@ -17,6 +17,8 @@ struct EntityMeshVertex {
 };
 
 EntityMesh::EntityMesh(const OCARN2::Mesh *const data) {
+    strcpy(name, data->name);
+
     glGenVertexArrays(1, &vaoId);
     glGenBuffers(1, &vboId);
     glGenTextures(2, textures);

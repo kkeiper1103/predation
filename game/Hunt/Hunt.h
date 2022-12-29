@@ -13,6 +13,7 @@
 #include <ocarn2.h>
 
 #include <vector>
+#include <random>
 
 #include "AreaEntry.h"
 #include "WeaponEntry.h"
@@ -39,15 +40,11 @@ private:
     std::vector<OCARN2::Mesh> animalMeshes;
     std::vector<OCARN2::Mesh> weaponMeshes;
 
-
     std::unique_ptr<Hunter> hunter;
-
     std::vector<AnimalPtr> animals;
 
     std::unique_ptr<Skybox> skybox = nullptr;
 
-    // test mesh
-    std::unique_ptr<EntityMesh> mesh = nullptr;
 
     // cache map for ocarn2 meshes
     std::map<std::string, std::unique_ptr<EntityMesh>> characters;
@@ -65,6 +62,10 @@ private:
     std::vector< std::vector<glm::mat4> > terrainModelMat4s;
     std::vector< std::unique_ptr<EntityMesh> > terrainModels;
 
+    // rng handle for hunt
+    std::random_device rd;
+    std::mt19937 gen;
+
 public:
     // used to show the pause menu stuff
     bool isPaused = false;
@@ -80,16 +81,20 @@ public:
     void render();
 
     void DrawTerrainChunkAt(int x, int z);
-    void UpdateAnimal( Animal* animal );
-    void DrawAnimal( Animal* animal );
     void DrawPlayer();
     void DrawSkybox();
 
-    std::vector<Animal*> GetAnimalsInRadius(int x, int z, float radius);
+    std::vector<AnimalPtr> GetAnimalsInRadius(int x, int z, float radius);
 
     void DecorateTerrain();
 
     void DrawSceneryWithinRadius(int radius);
+
+    //
+    glm::mat4 getViewMatrix() { return hunter->camera.GetViewMatrix(); }
+    glm::mat4 getProjectionMatrix() { return hunter->camera.GetProjectionMatrix(); }
+
+    void SpawnAnimals(int min, int max);
 };
 
 

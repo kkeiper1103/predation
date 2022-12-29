@@ -9,9 +9,6 @@
 #include "World/GameWorld.h"
 
 #include "Application.h"
-#include "glm/ext/matrix_transform.hpp"
-#include "glm/ext/matrix_clip_space.hpp"
-#include "Hunt/Terrain/SmoothedTerrain.h"
 
 
 EntityMesh* Hunt::GetMeshForCharacter(OCARN2::Mesh* character) {
@@ -49,36 +46,16 @@ Hunt::Hunt(GameWorld* parent, const AreaEntry &area, std::vector<AnimalEntry> an
         weaponMeshes[i] = load_car_file(weapons[i].modelFile.c_str());
 
     // set up rng
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distribution(20, 40);
+    gen = std::mt19937(rd());
 
     // spawn animals
-    int spawnLimit = distribution(gen);
-    this->animals.reserve(spawnLimit);
-
-    int xPosition=0;
-    std::uniform_int_distribution<> animalTypeDistribution(0, animalMeshes.size() - 1);
-    for( auto i=0; i < spawnLimit; i++ ) {
-        auto type = animalMeshes[ animalTypeDistribution(gen) ];
-
-        // @todo come up with better, more informative name. Too much confusion between OCARN2::Mesh and EntityMesh
-        // one is for model data, the other is for gl buffered data
-        auto characterMesh = GetMeshForCharacter(&type);
-
-        this->animals.push_back( std::make_shared<Animal>(characterMesh, glm::vec3 { xPosition++ * 200, 0, 200 }) );
-    }
+    SpawnAnimals(10, 25);
 
     // make skybox
     skybox = std::make_unique<Skybox>( rsc.sky[parent->huntConfig.timeOfDay] );
 
-    // make mesh for testing
-    mesh = std::make_unique<EntityMesh>( &animalMeshes[0] );
-
     // set the hunter's location
     hunter = std::make_unique<Hunter>(this,terrain->GetRandomSpawnLocation());
-
-
 
     // move mouse to center and set relative?
     SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -126,7 +103,7 @@ void Hunt::update(double dt) {
     hunter->update(dt);
 
     for(auto& animal: animals) {
-        UpdateAnimal( animal.get() );
+        animal->update(dt);
     }
 }
 
@@ -160,8 +137,8 @@ void Hunt::render() {
     DrawSceneryWithinRadius(128);
 
     // @todo
-    for(auto& animalPtr: GetAnimalsInRadius((int) floor(hunter->position.x), (int) floor(hunter->position.z), 128.f)) {
-        // DrawAnimal( animalPtr );
+    for(auto& animal: GetAnimalsInRadius((int) floor(hunter->position.x), (int) floor(hunter->position.z), 128.f)) {
+        animal->draw();
     }
 
     DrawPlayer();
@@ -185,25 +162,27 @@ void Hunt::DrawTerrainChunkAt(int x, int z) {
     terrain->draw(chunkX, chunkZ);
 }
 
-void Hunt::UpdateAnimal( Animal* animal ) {
-    animal->mesh->shader->setMat4("projection", hunter->camera.GetProjectionMatrix());
-    animal->mesh->shader->setMat4("view", hunter->camera.GetViewMatrix());
-}
-
-void Hunt::DrawAnimal( Animal* animal ) {
-    animal->draw();
-}
-
 void Hunt::DrawPlayer() {
     hunter->draw();
 }
 
-std::vector<Animal*> Hunt::GetAnimalsInRadius(int x, int z, float radius) {
-    static std::vector<Animal*> retval; retval.clear();
+std::vector<AnimalPtr> Hunt::GetAnimalsInRadius(int x, int z, float radius) {
+    static std::vector<AnimalPtr> retval; retval.clear();
+
 
     // @todo add distance checking once positions are implemented and only push back any animals within radius
     for(auto& animal: animals) {
-        retval.push_back(animal.get());
+        float distance = sqrt(
+            pow((animal->position.x - hunter->position.x), 2) +
+            pow((animal->position.y - hunter->position.y), 2) +
+            pow((animal->position.z - hunter->position.z), 2)
+        );
+
+
+        if(distance < radius) {
+            printf("Animal In Range!!!! %.2f\n", distance);
+            retval.push_back(animal);
+        }
     }
 
     return retval;
@@ -258,5 +237,32 @@ void Hunt::DrawSceneryWithinRadius(int radius) {
                 terrainModels[ map.objectMap[idx] ]->drawAt(x, terrain->GetHeight(idx), z);
             }
         }
+    }
+}
+
+void Hunt::SpawnAnimals(int min, int max) {
+    std::uniform_int_distribution<> distribution(min, max);
+
+    int spawnLimit = distribution(gen);
+    printf("Spawning %d Animals\n", spawnLimit);
+    this->animals.reserve(spawnLimit);
+
+
+    std::uniform_int_distribution<> animalTypeDistribution(0, animalMeshes.size() - 1);
+    std::uniform_int_distribution<> animalPositionDistribution(0, 1023); // between 0 and map_size
+    for( auto i=0; i < spawnLimit; i++ ) {
+        auto type = animalMeshes[ animalTypeDistribution(gen) ];
+
+        // @todo come up with better, more informative name. Too much confusion between OCARN2::Mesh and EntityMesh
+        // one is for model data, the other is for gl buffered data
+        auto characterMesh = GetMeshForCharacter(&type);
+
+
+        float x = animalPositionDistribution(gen),
+            z = animalPositionDistribution(gen),
+            y = terrain->GetHeight(x, z);
+
+        printf("Spawning %s at (%.2f, %.2f, %.2f)...\n", type.name, x, y, z);
+        this->animals.push_back( std::make_shared<Animal>(this,characterMesh, glm::vec3 { x, y, z }) );
     }
 }

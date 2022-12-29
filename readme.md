@@ -15,7 +15,7 @@ Hunt Setup Screen
 ![Hunt Setup](media/hunt-setup.png)
 
 Active Hunt
-![Active Hunt](media/active-hunt.png)
+![Active Hunt](media/allosaurus.png)
 ![Map Objects Loaded](media/scenery.png)
 
 ## Known Bugs (So Far. Probably more broken things than working ones)

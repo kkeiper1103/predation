@@ -9,10 +9,11 @@
 #include "Controls/GamepadController.h"
 
 void Hunter::input(SDL_Event *e) {
+
     static float yaw = -90.f;
     static float pitch = 25.f;
 
-    // not sure?
+    // this branch controls gamepad look around
     if( controller->isActionPresent(Action::ACTION_LOOK_HORIZONTAL) || controller->isActionPresent(Action::ACTION_LOOK_VERTICAL) ) {
         float xrel = controller->getActionMagnitude(Action::ACTION_LOOK_HORIZONTAL);
         float yrel = controller->getActionMagnitude(Action::ACTION_LOOK_VERTICAL);
@@ -21,13 +22,17 @@ void Hunter::input(SDL_Event *e) {
         pitch -= yrel;
     }
 
+    // this branch controls mouse movement lookaround
+    // @todo unify with the above branch
     if(e->type == SDL_MOUSEMOTION) {
         yaw += e->motion.xrel / 2.f;
         pitch -= e->motion.yrel;
     }
 
+    // make sure we don't invert the vertical look around
     pitch = std::clamp(pitch, -89.f, 89.f);
 
+    // rotate the hunter based on the yaw and pitch movement
     rotation.x = cos(glm::radians(yaw));
     rotation.z = sin(glm::radians(yaw));
     rotation.y = sin(glm::radians(pitch));

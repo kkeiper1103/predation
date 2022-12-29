@@ -21,9 +21,11 @@ protected:
     EntityMesh* mesh = nullptr;
     Hunt* parent = nullptr;
 
+    friend class Camera;
 
     glm::mat4 model = glm::mat4(1.f);
 
+public:
     glm::vec3 position{0, 0, 0};
     glm::vec3 rotation{0, 0, 0};
     glm::vec3 velocity{5, 9.8, 5};
@@ -32,7 +34,13 @@ protected:
     std::shared_ptr<Shader> shader;
     std::unique_ptr<Controller> controller;
 
-    Camera camera;
+    // jump information
+    bool inJump = false;
+    double jumpDuration = 0.25;
+    double jumpTimer = 0;
+
+    // weapon information
+    bool weaponReady{false};
 
 public:
     explicit Hunter(Hunt* parent, glm::vec3 position);
@@ -41,6 +49,8 @@ public:
     void input(SDL_Event* e);
     void update(double dt);
     void draw();
+
+    Camera camera;
 };
 
 

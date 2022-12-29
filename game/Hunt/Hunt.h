@@ -27,20 +27,9 @@
 // forward declaration for parent/child relationship
 class GameWorld;
 
-struct Player {
-    glm::vec3 position {0, 0, 0};
-    glm::vec3 rotation {0, 0, 0};
-    glm::vec3 velocity {5, -9.8, 5};
-
-    void draw() {}
-    void update(double dt) {}
-};
-
 class Hunt {
-public:
-    Camera camera {this, glm::vec3 { 64, 64, 64}, glm::vec3 {0, 0, -1}};
-
 private:
+    friend class Hunter;
     GameWorld* parent = nullptr;
     OCARN2::Map map;
     OCARN2::Rsc rsc;
@@ -49,10 +38,6 @@ private:
 
     std::vector<OCARN2::Mesh> animalMeshes;
     std::vector<OCARN2::Mesh> weaponMeshes;
-
-    //
-    friend class Camera;
-    Player player;
 
 
     std::unique_ptr<Hunter> hunter;
@@ -103,6 +88,8 @@ public:
     std::vector<Animal*> GetAnimalsInRadius(int x, int z, float radius);
 
     void DecorateTerrain();
+
+    void DrawSceneryWithinRadius(int radius);
 };
 
 

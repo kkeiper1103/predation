@@ -4,14 +4,14 @@
 
 #include "Camera.h"
 
-#include "Hunt.h"
+#include "Entities/Hunter.h"
 #include "Application.h"
 
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "GameSettings.h"
 
-Camera::Camera(Hunt* parent, glm::vec3 position, glm::vec3 target) : parent{parent}, position{position}, target{target}, up{0, 1, 0} {
+Camera::Camera(Hunter* parent, glm::vec3 position, glm::vec3 target) : parent{parent}, position{position}, target{target}, up{0, 1, 0} {
     SDL_ShowCursor(SDL_DISABLE);
 
     float width = (&app()->config)->width,
@@ -32,9 +32,9 @@ void Camera::input(SDL_Event* e) {
 }
 
 void Camera::update(double dt) {
-    rotation = parent->player.rotation;
+    rotation = parent->rotation;
 
-    position = parent->player.position;
+    position = parent->position;
     position.y += 2;
 
     target = glm::normalize(rotation);

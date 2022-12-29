@@ -75,13 +75,8 @@ Hunt::Hunt(GameWorld* parent, const AreaEntry &area, std::vector<AnimalEntry> an
     // make mesh for testing
     mesh = std::make_unique<EntityMesh>( &animalMeshes[0] );
 
-    // set the player's position to one of the spawn points
-    player.position = terrain->GetRandomSpawnLocation();
-
-
-    //
-    hunter = std::make_unique<Hunter>(this,
-                                      terrain->GetRandomSpawnLocation());
+    // set the hunter's location
+    hunter = std::make_unique<Hunter>(this,terrain->GetRandomSpawnLocation());
 
 
 
@@ -116,80 +111,25 @@ void Hunt::input(SDL_Event *e) {
     // don't move the camera when the pause menu is up, or else they'll be like WUT
     if(!isPaused) {
         hunter->input(e);
-
-        if(e->type == SDL_MOUSEMOTION) {
-            static float yaw = -90.f;
-            static float pitch = 25.f;
-
-            yaw += e->motion.xrel / 2.f;
-            pitch -= e->motion.yrel;
-
-            pitch = std::clamp(pitch, -89.f, 89.f);
-
-            player.rotation.x = cos(glm::radians(yaw));
-            player.rotation.z = sin(glm::radians(yaw));
-            player.rotation.y = sin(glm::radians(pitch));
-        }
     }
 }
 
 void Hunt::update(double dt) {
     if(isPaused) return;
 
-    terrain->shader->setVec3("viewPosition", camera.position);
+    terrain->shader->setVec3("viewPosition", hunter->camera.position);
+
 
     skybox->update(dt);
-    skybox->shader->setMat4("view", glm::mat4(glm::mat3( camera.GetViewMatrix() )));
-    skybox->shader->setMat4("projection", camera.GetProjectionMatrix());
+    skybox->shader->setMat4("view", glm::mat4(glm::mat3( hunter->camera.GetViewMatrix() )));
+    skybox->shader->setMat4("projection", hunter->camera.GetProjectionMatrix());
 
-    mesh->shader->setMat4("view", camera.GetViewMatrix());
-    mesh->shader->setMat4("projection", camera.GetProjectionMatrix());
-    mesh->shader->setMat4("model", glm::mat4(1.f));
+
+    hunter->update(dt);
 
     for(auto& animal: animals) {
         UpdateAnimal( animal.get() );
     }
-
-    // move player position for fun, testing
-    auto keys = SDL_GetKeyboardState(nullptr);
-
-    if(keys[SDL_SCANCODE_F6]) {
-        printf( "Height At (%.2f, %.2f): %.3f\n", player.position.x, player.position.z, terrain->GetHeight(player.position.x, player.position.z) );
-        printf("Height At (%d, %d): %d\n",
-               (int) floor(player.position.x),
-               (int) floor(player.position.z),
-               (GLushort) terrain->GetHeight((int) floor(player.position.x), (int) floor(player.position.z))
-           );
-
-        printf("Height At (%d, %d): %d\n",
-               (int) floor(player.position.x) + 1,
-               (int) floor(player.position.z) + 1,
-               (GLushort) terrain->GetHeight((int) floor(player.position.x) + 1, (int) floor(player.position.z) + 1)
-        );
-    }
-
-    const float playerSpeed = 5.f;
-    /**
-     * @todo add slope checking *in the direction of the player*
-     */
-    if( keys[SDL_SCANCODE_D] ) {
-        player.position += glm::normalize(glm::cross(camera.target, camera.up)) * playerSpeed * (float) dt;
-    }
-    else if( keys[SDL_SCANCODE_A] ) {
-        player.position -= glm::normalize(glm::cross(camera.target, camera.up)) * playerSpeed * (float) dt;
-    }
-
-    if( keys[SDL_SCANCODE_W] )
-        player.position += playerSpeed * camera.target * (float) dt;
-    else if( keys[SDL_SCANCODE_S] )
-        player.position -= playerSpeed * camera.target * (float) dt;
-
-    player.position.x = std::clamp(player.position.x, 1.f, 1023.f);
-    player.position.z = std::clamp(player.position.z, 1.f, 1023.f);
-
-    player.position.y = terrain->GetHeight(player.position.x, player.position.z);
-
-    camera.update(dt);
 }
 
 void Hunt::gui(nk_context *ctx) {
@@ -215,26 +155,18 @@ void Hunt::gui(nk_context *ctx) {
 
 void Hunt::render() {
 
-    DrawTerrainChunkAt((int) floor(player.position.x), (int) floor(player.position.z));
+    // draw the containing chunk, as well as a radius around it
+    DrawTerrainChunkAt((int) floor(hunter->position.x), (int) floor(hunter->position.z));
 
     // get all terrain objects in radius
-    int viewRadius = 128;
-    for(int z = floor(player.position.z) - viewRadius / 2; z < floor(player.position.z) + viewRadius / 2; z++) {
-        for(int x = floor(player.position.x) - viewRadius / 2; x < floor(player.position.x) + viewRadius / 2; x++) {
-            int idx = z * 1024 + x;
+    DrawSceneryWithinRadius(128);
 
-            // if the item is not a spawn point, draw it
-            if( map.objectMap[idx] < 254 ) {
-                terrainModels[ map.objectMap[idx] ]->drawAt(x, terrain->GetHeight(idx), z);
-            }
-        }
-    }
-
-    for(auto& animalPtr: GetAnimalsInRadius((int) floor(player.position.x), (int) floor(player.position.z), 30.f)) {
+    // @todo
+    for(auto& animalPtr: GetAnimalsInRadius((int) floor(hunter->position.x), (int) floor(hunter->position.z), 30.f)) {
         // DrawAnimal( animalPtr );
     }
 
-    /*DrawPlayer();*/
+    DrawPlayer();
 
     // render after everything else is filled, so we only fill pixels that haven't been rendered to
     DrawSkybox();
@@ -248,16 +180,16 @@ void Hunt::DrawTerrainChunkAt(int x, int z) {
     int chunkX = floor( x / terrain->chunksPerSide );
     int chunkZ = floor( z / terrain->chunksPerSide );
 
-    terrain->shader->setMat4("view", camera.GetViewMatrix());
-    terrain->shader->setMat4("projection", camera.GetProjectionMatrix());
+    terrain->shader->setMat4("view", hunter->camera.GetViewMatrix());
+    terrain->shader->setMat4("projection", hunter->camera.GetProjectionMatrix());
     terrain->shader->setMat4("model", glm::mat4(1.f));
 
     terrain->draw(chunkX, chunkZ);
 }
 
 void Hunt::UpdateAnimal( Animal* animal ) {
-    animal->mesh->shader->setMat4("projection", camera.GetProjectionMatrix());
-    animal->mesh->shader->setMat4("view", camera.GetViewMatrix());
+    animal->mesh->shader->setMat4("projection", hunter->camera.GetProjectionMatrix());
+    animal->mesh->shader->setMat4("view", hunter->camera.GetViewMatrix());
 }
 
 void Hunt::DrawAnimal( Animal* animal ) {
@@ -313,6 +245,19 @@ void Hunt::DecorateTerrain() {
                 auto& settings = rsc.models[objectId];
 
                 terrainModels[objectId] = std::make_unique<EntityMesh>(&settings.mesh);
+            }
+        }
+    }
+}
+
+void Hunt::DrawSceneryWithinRadius(int radius) {
+    for(int z = floor(hunter->position.z) - radius / 2; z < floor(hunter->position.z) + radius / 2; z++) {
+        for(int x = floor(hunter->position.x) - radius / 2; x < floor(hunter->position.x) + radius / 2; x++) {
+            int idx = z * 1024 + x;
+
+            // if the item is not a spawn point, draw it
+            if( map.objectMap[idx] < 254 ) {
+                terrainModels[ map.objectMap[idx] ]->drawAt(x, terrain->GetHeight(idx), z);
             }
         }
     }

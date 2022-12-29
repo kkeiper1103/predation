@@ -13,7 +13,7 @@ out vec4 FragColor;
 void main() {
     FragColor = texture(diffuse, fTextureCoords);
 
-    if(FragColor.a < 0.05) discard;
+    if(FragColor.a < 0.09) discard;
     else {
 
         // generates a fog. keep in sync with Mesh.frag

@@ -80,16 +80,16 @@ void Hunter::update(double dt) {
 }
 
 void Hunter::draw() {
+    if(!shader) return; // if there's no shader, there's no sense in rendering the player
+
     shader->use();
-
-
 }
 
 Hunter::Hunter(Hunt* parent, glm::vec3 position) :
-parent(parent),
-position{position},
-camera(this, position, rotation) {
-
+    parent(parent),
+    position{position},
+    camera(this, position, rotation)
+{
     controller = std::make_unique<KeyboardController>();
 }
 

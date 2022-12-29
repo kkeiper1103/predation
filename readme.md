@@ -21,7 +21,6 @@ Active Hunt
 ## Known Bugs (So Far. Probably more broken things than working ones)
 - Very jagged terrain. Not sure how to smooth yet
 - no dinosaurs rendering
-- camera is still attached to Hunt.cpp instead of the Hunter.cpp, although work has started
 - credits are not implemented yet, so all maps, dinos and guns are available
 - view range is hardcoded. needs added to GameSettings and given a control in the options screen.
 - add AABB collision bugs

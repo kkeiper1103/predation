@@ -119,11 +119,9 @@ void Hunt::update(double dt) {
 
     terrain->shader->setVec3("viewPosition", hunter->camera.position);
 
-
     skybox->update(dt);
     skybox->shader->setMat4("view", glm::mat4(glm::mat3( hunter->camera.GetViewMatrix() )));
     skybox->shader->setMat4("projection", hunter->camera.GetProjectionMatrix());
-
 
     hunter->update(dt);
 
@@ -162,7 +160,7 @@ void Hunt::render() {
     DrawSceneryWithinRadius(128);
 
     // @todo
-    for(auto& animalPtr: GetAnimalsInRadius((int) floor(hunter->position.x), (int) floor(hunter->position.z), 30.f)) {
+    for(auto& animalPtr: GetAnimalsInRadius((int) floor(hunter->position.x), (int) floor(hunter->position.z), 128.f)) {
         // DrawAnimal( animalPtr );
     }
 
@@ -197,7 +195,7 @@ void Hunt::DrawAnimal( Animal* animal ) {
 }
 
 void Hunt::DrawPlayer() {
-
+    hunter->draw();
 }
 
 std::vector<Animal*> Hunt::GetAnimalsInRadius(int x, int z, float radius) {

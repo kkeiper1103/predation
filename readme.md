@@ -23,9 +23,9 @@ Active Hunt
 - no dinosaurs rendering
 - credits are not implemented yet, so all maps, dinos and guns are available
 - view range is hardcoded. needs added to GameSettings and given a control in the options screen.
-- add AABB collision bugs
+- add AABB collision boxes
 - Delpheus Hills: radio tower is mis-placed and missing midpiece.
-- mouse state updates to rapidly, resulting in toggling weapons really fast; should switch to a latch mechanism
+- mouse state updates too rapidly, resulting in toggling weapons really fast; should switch to a latch mechanism
 
 ## Todos
 - Add Uniform Buffer Objects to the shaders, so we have unified uniforms

@@ -17,6 +17,7 @@ Hunt Setup Screen
 Active Hunt
 ![Active Hunt](media/allosaurus.png)
 ![Map Objects Loaded](media/scenery.png)
+![Out of Place](media/out-of-place.png)
 
 ## Known Bugs (So Far. Probably more broken things than working ones)
 - Very jagged terrain. Not sure how to smooth yet
@@ -32,6 +33,7 @@ Active Hunt
 - Implement AI (hooo boy is this a big one)
 - Render animations for models. Data is available, but haven't programmed the adapter yet
 - Add sounds from map and dinosaurs
+- Add water table and do dynamic water
 
 ## Style Guide Rules
 - Any variables declared on the heap MUST use smart pointers (shared_ptr is preferred)

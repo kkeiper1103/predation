@@ -38,14 +38,14 @@ vec3 calcAmbientLighting(in Light light) {
     return ambientStrength * light.ambient;
 }
 
-vec4 applyLighting(in vec3 frag, in vec3 normal, in vec3 position) {
+vec4 applyLighting(in vec4 frag, in vec3 normal, in vec3 position) {
     theLight.position = vec3(256, 256, 256);
     theLight.diffuse = vec3(.5, .5, .5);
     theLight.specular = vec3(1, 1, 1);
     theLight.ambient = vec3(.91, .94, .87);
     theLight.attenuation = .8;
 
-    vec3 result = (calcAmbientLighting(theLight) + calcDiffuseLighting(theLight, normal, position) + calcSpecularLighting(theLight, normal, position)) * frag;
+    vec3 result = (calcAmbientLighting(theLight) + calcDiffuseLighting(theLight, normal, position) + calcSpecularLighting(theLight, normal, position)) * frag.rgb;
 
-    return vec4(result, 1);
+    return vec4(result, frag.a);
 }

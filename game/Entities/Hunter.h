@@ -35,7 +35,7 @@ public:
     std::unique_ptr<Controller> controller;
 
     // jump information
-    bool inJump = false;
+    bool onGround = true;
     double jumpDuration = 0.25;
     double jumpTimer = 0;
 

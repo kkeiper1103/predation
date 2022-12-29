@@ -16,6 +16,12 @@ protected:
 
 public:
     bool isActionPresent(Action action) override;
+
+    // keyboard/mouse combo is either 0 or 1, based on if the action is present
+    // gamepad / joystick allows for partial values
+    float getActionMagnitude(Action action) override {
+        return (float) isActionPresent(action);
+    }
 };
 
 

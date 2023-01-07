@@ -27,6 +27,16 @@ public:
 
     void update(double dt);
     void draw();
+
+protected:
+    struct VerticesReturnObject {
+        std::vector<GLuint> indices;
+        std::vector<float> positions;
+        std::vector<float> normals;
+        std::vector<float> uvs;
+    };
+
+    VerticesReturnObject generateVertices();
 };
 
 

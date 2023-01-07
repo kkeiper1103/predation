@@ -7,11 +7,6 @@
 #include "Hunt/Hunt.h"
 
 void Animal::draw() {
-    printf("should be drawing %s at (%.2f, %.2f, %.2f)...\n", mesh->name, position.x, position.y, position.z);
-
-    printf("VAO ID: %d\n", mesh->vaoId);
-
-
     mesh->shader->setMat4("view", parent->getViewMatrix());
     mesh->shader->setMat4("projection", parent->getProjectionMatrix());
     mesh->shader->setMat4("model", model);

@@ -143,7 +143,7 @@ Application::Application() {
     configure(config);
 
     // set relative mouse mode
-    SDL_SetWindowGrab(window, SDL_TRUE);
+    // SDL_SetWindowGrab(window, SDL_TRUE);
 
     // @todo use real rng
     srand(time(NULL));

@@ -26,6 +26,18 @@ SDL_GLContext context = nullptr;
 
 void clearWindow();
 
+
+
+bool is_big_endian(void)
+{
+    union {
+        uint32_t i;
+        char c[4];
+    } bint = {0x01020304};
+
+    return bint.c[0] == 1;
+}
+
 int main(int argc, char* argv[]) {
     START_EASYLOGGINGPP(argc, argv);
 
@@ -79,7 +91,6 @@ int main(int argc, char* argv[]) {
 
     mesh->shader->setMat4("view", view);
     mesh->shader->setMat4("projection", projection);
-
 
 
 

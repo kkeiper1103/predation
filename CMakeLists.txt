@@ -3,7 +3,6 @@ project(predation)
 
 set(CMAKE_CXX_STANDARD 20)
 
-
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 
@@ -43,7 +42,7 @@ set(SOURCES
 add_executable(${PROJECT_NAME} main.cpp ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL SDL2::SDL2)
-target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include vendor/glm src/ game/)
+target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include vendor/glm src/ game/ )
 
 
 

@@ -180,7 +180,6 @@ std::vector<AnimalPtr> Hunt::GetAnimalsInRadius(int x, int z, float radius) {
 
 
         if(distance < radius) {
-            printf("Animal In Range!!!! %.2f\n", distance);
             retval.push_back(animal);
         }
     }

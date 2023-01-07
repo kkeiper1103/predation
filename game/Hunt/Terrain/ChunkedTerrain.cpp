@@ -7,8 +7,29 @@
 
 #include "ChunkedTerrain.h"
 
-ChunkedTerrain::ChunkedTerrain(OCARN2::Map *map, OCARN2::Rsc* rsc, int chunksPerSide) : map{map}, rsc{rsc}, chunksPerSide{chunksPerSide} {
+template <typename T>
+void BufferAttribute(int location, uint numComponents, const std::vector<T>& data) {
+    if( data.size() % numComponents != 0 ) {
+        LOG(ERROR) << "Buffer Size is not a Multiple of NumComponents!";
+        return;
+    }
 
+    int currentlyBoundBuffer = 0;
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &currentlyBoundBuffer);
+
+    if( currentlyBoundBuffer == 0 ) {
+        LOG(ERROR) << "No Buffer Bound Currently! Can't BufferAttribute";
+        return;
+    }
+
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(T) * data.size(), &data[0]);
+    glVertexAttribPointer(location, numComponents, GL_FLOAT, GL_FALSE, sizeof(T) * numComponents, 0);
+    glEnableVertexAttribArray(location);
+};
+
+
+
+ChunkedTerrain::ChunkedTerrain(OCARN2::Map *map, OCARN2::Rsc* rsc, int chunksPerSide) : map{map}, rsc{rsc}, chunksPerSide{chunksPerSide} {
     // pre-allocate the memory by creating empty chunks
     chunks.resize(chunksPerSide);
     for(int z=0; z < chunksPerSide; z++) {
@@ -79,9 +100,6 @@ void ChunkedTerrain::draw(int chunkX, int chunkZ) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D_ARRAY, textureId);
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_CW);
-
     if(drawAll) {
         for(auto& row: chunks)
             for(auto& cell: row) {
@@ -102,8 +120,6 @@ void ChunkedTerrain::draw(int chunkX, int chunkZ) {
         }
     }
 
-    glDisable(GL_CULL_FACE);
-
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
@@ -122,8 +138,8 @@ void ChunkedTerrain::UploadTexture() {
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, width, height, layerCount,
                     GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &tex[0]);
 
-    glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 
@@ -132,22 +148,25 @@ void ChunkedTerrain::UploadTexture() {
 
 
 glm::vec2 rotateUV(glm::vec2 uv, float rotation) {
-    auto pivot = glm::vec2{ .5, .5 };
+    float mid = 0.5;
 
-    float cosa = cos(M_PI / 2.f * rotation);
-    float sina = sin(M_PI / 2.f * rotation);
+    float cos_ = cos(M_PI / 2. * rotation);
+    float sin_ = sin(M_PI / 2. * rotation);
 
-    uv -= pivot;
-    return glm::vec2(
-            cosa * uv.x - sina * uv.y,
-            cosa * uv.y + sina * uv.x
-    ) + pivot;
+    return {
+        cos_ * (uv.x - mid) + sin_ * (uv.y - mid) + mid,
+        cos_ * (uv.y - mid) - sin_ * (uv.x - mid) + mid
+    };
 }
 
 // get triangle normal
 glm::vec3 calculateTriangleNormal( glm::vec3 A, glm::vec3 B ) {
     return glm::normalize( glm::cross(A, B) );
 }
+
+//
+#define BitVal(data,y) ( (data>>y) & 1)      /** Return Data.Y value   **/
+
 
 std::vector<TerrainVertex> ChunkedTerrain::GetRegion(int chunkX, int chunkZ, int valuesPerChunkRow) {
 
@@ -156,6 +175,7 @@ std::vector<TerrainVertex> ChunkedTerrain::GetRegion(int chunkX, int chunkZ, int
 
     std::vector<TerrainVertex> vertices;
 
+    const int size = 1024;
 
     for(auto z = verticalOffset; z < (verticalOffset + valuesPerChunkRow); z++) {
         for(auto x = horizontalOffset; x < (horizontalOffset + valuesPerChunkRow); x++) {
@@ -172,61 +192,59 @@ std::vector<TerrainVertex> ChunkedTerrain::GetRegion(int chunkX, int chunkZ, int
 
             int flags = map->bitflagMap[z * 1024 + x];
 
-            float amount = 0;
-            if((flags & 0x01) == 0x0001) amount += glm::radians(-90.f);
-            if((flags & 0x10) == 0x0010) amount += glm::radians(-90.f);
-            if((flags & 0x11) == 0x0011) amount += glm::radians(-90.f);
+            bool reversed = BitVal(flags, 4) != 0;
+            int tDirection = flags & 3u;
 
-            uint rotation = (flags&OCARN2::BF_TEXTURE_DIRECTION | (flags&OCARN2::BF_REVERSE << 6) ) & 3u;
+            int rotation = tDirection | (reversed << 6);
 
             for(auto& tex: coords) {
                 tex = rotateUV(tex, rotation);
             }
 
-            glm::vec3 v1 = {x, GetHeight(z * 1024 + x), z},
-                v2 = {x + 1, GetHeight(z * 1024 + (x + 1)), z},
-                v3 = {x + 1, GetHeight((z + 1) * 1024 + (x + 1)), z + 1};
+            glm::vec3 v1 = {  (x),      GetHeight(z * size + x),                   (z) },
+                    v2 = {  (x + 1),  GetHeight(z * size + (x + 1)),          (z) },
+                    v3 = {  (x + 1),  GetHeight((z + 1) * size + (x + 1)),    (z + 1) },
+
+                    // second face
+                    v4 = {  (x),      GetHeight(z * size + x),                   (z) },
+                    v5 = {  (x + 1),  GetHeight((z + 1) * size + (x + 1)),    (z + 1) },
+                    v6 = {  (x),      GetHeight((z + 1) * size + x),             (z + 1) };
+
+
             auto normalA = calculateTriangleNormal(v2 - v1, v3 - v1);
+            auto normalB = calculateTriangleNormal(v5 - v4, v6 - v4);
 
             // first triangle upper left
             // ccw winding
             vertices.emplace_back(TerrainVertex {
                     v1,
-                    {coords[0].s, coords[0].t, map->textureMap[idx]},
-                    normalA
-            });
-            vertices.emplace_back(TerrainVertex {
-                    v3,
-                    {coords[2].s, coords[2].t, map->textureMap[idx]},
+                    {coords[0].x, coords[0].y, map->textureMap[idx]},
                     normalA
             });
             vertices.emplace_back(TerrainVertex {
                     v2,
-                    {coords[1].s, coords[1].t, map->textureMap[idx]},
+                    {coords[1].x, coords[1].y, map->textureMap[idx]},
                     normalA
-            });
-
-
-            v1 = {x, GetHeight(z * 1024 + x), z},
-                v2 = {x + 1, GetHeight((z + 1) * 1024 + (x + 1)), z + 1},
-                v3 = {x, GetHeight((z + 1) * 1024 + x), z + 1};
-            auto normalB = calculateTriangleNormal(v2 - v1, v3 - v1);
-
-            // second triangle, bottom right
-            // ccw winding
-            vertices.emplace_back(TerrainVertex {
-                    v1,
-                    {coords[3].s, coords[3].t, map->textureMap[idx]},
-                    normalB
             });
             vertices.emplace_back(TerrainVertex {
                     v3,
-                    {coords[5].s, coords[5].t, map->textureMap[idx]},
+                    {coords[2].x, coords[2].y, map->textureMap[idx]},
+                    normalA
+            });
+
+            vertices.emplace_back(TerrainVertex {
+                    v4,
+                    {coords[3].x, coords[3].y, map->textureMap[idx]},
                     normalB
             });
             vertices.emplace_back(TerrainVertex {
-                    v2,
-                    {coords[4].s, coords[4].t, map->textureMap[idx]},
+                    v5,
+                    {coords[4].x, coords[4].y, map->textureMap[idx]},
+                    normalB
+            });
+            vertices.emplace_back(TerrainVertex {
+                    v6,
+                    {coords[5].x, coords[5].y, map->textureMap[idx]},
                     normalB
             });
 

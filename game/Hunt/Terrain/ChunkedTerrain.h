@@ -12,9 +12,10 @@
 #include <ocarn2.h>
 #include "graphics/Shader.h"
 
+
 struct TerrainVertex {
     glm::vec3 position;
-    glm::vec3 texture; // <s, t, layerid>
+    glm::vec3 texture; // <s, t, layerid, rotation>
     glm::vec3 normal;
 };
 

@@ -11,8 +11,11 @@ uniform sampler2DArray terrain;
 
 out vec4 FragColor;
 
+
 void main() {
-    FragColor = applyLighting( texture(terrain, fTexture), fNormal, fPosition );
+    FragColor = texture(terrain, fTexture);
+
+    // FragColor = applyLighting( texture(terrain, coords), fNormal, fPosition );
 
     // generates a fog. keep in sync with Mesh.frag
     // @todo make include with this stuff or something

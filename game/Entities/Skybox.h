@@ -11,11 +11,14 @@
 class Skybox {
 protected:
     GLuint vaoId{0};
-    GLuint vboId{0};
+    GLuint buffers[4] {0, 0, 0, 0};
     GLuint textureId{0};
 
     int width{256};
     int height{256};
+
+    glm::vec3 rotation {0, 0, 0};
+    glm::mat4 model {1.f};
 
     // for now, the shader needs to be public for all the classes that modify it
 public:
@@ -37,6 +40,8 @@ protected:
     };
 
     VerticesReturnObject generateVertices();
+
+    unsigned long numElements{0};
 };
 
 

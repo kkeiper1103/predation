@@ -7,25 +7,7 @@
 
 #include "ChunkedTerrain.h"
 
-template <typename T>
-void BufferAttribute(int location, uint numComponents, const std::vector<T>& data) {
-    if( data.size() % numComponents != 0 ) {
-        LOG(ERROR) << "Buffer Size is not a Multiple of NumComponents!";
-        return;
-    }
 
-    int currentlyBoundBuffer = 0;
-    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &currentlyBoundBuffer);
-
-    if( currentlyBoundBuffer == 0 ) {
-        LOG(ERROR) << "No Buffer Bound Currently! Can't BufferAttribute";
-        return;
-    }
-
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(T) * data.size(), &data[0]);
-    glVertexAttribPointer(location, numComponents, GL_FLOAT, GL_FALSE, sizeof(T) * numComponents, 0);
-    glEnableVertexAttribArray(location);
-};
 
 
 

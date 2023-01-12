@@ -10,8 +10,6 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
-#include <sstream>
-#include <fstream>
 #include <map>
 
 #include <glm/gtc/type_ptr.hpp>

@@ -5,6 +5,7 @@
 #include "Skybox.h"
 #include "utils/convert_rgb5_a1_to_grayscale.h"
 #include "glm/ext/matrix_transform.hpp"
+#include "GameSettings.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
@@ -113,8 +114,8 @@ Skybox::~Skybox() {
     glDeleteTextures(1, &textureId);
 }
 
-Skybox::VerticesReturnObject Skybox::generateVertices() {
-    float radius = 128.f, widthSegments = 32, heightSegments = 16,
+Skybox::vertex_collection_t Skybox::generateVertices() {
+    float radius = GameSettings::Get().viewRadius, widthSegments = 32, heightSegments = 32,
         phiStart = 0, phiLength = M_PI * 2, thetaStart = 0, thetaLength = M_PI;
 
     const float thetaEnd = std::min(thetaStart + thetaLength, (float) M_PI);

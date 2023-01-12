@@ -26,12 +26,11 @@
 #include "Entities/Hunter.h"
 
 // forward declaration for parent/child relationship
-class GameWorld;
+class Kernel;
 
 class Hunt {
-private:
-    friend class Hunter;
-    GameWorld* parent = nullptr;
+public:
+    Kernel* parent = nullptr;
     OCARN2::Map map;
     OCARN2::Rsc rsc;
 
@@ -72,7 +71,7 @@ public:
     // used to alert GameWorld that the Hunt is over
     bool isComplete = false;
 
-    Hunt(GameWorld* parent, const AreaEntry& area, std::vector<AnimalEntry> animals, std::vector<WeaponEntry> weapons);
+    Hunt(Kernel* parent, const AreaEntry& area, std::vector<AnimalEntry> animals, std::vector<WeaponEntry> weapons);
     ~Hunt();
 
     void input(SDL_Event* e);

@@ -5,13 +5,13 @@ INITIALIZE_EASYLOGGINGPP
 
 
 #include "Application.h"
-#include "World/GameWorld.h"
+#include "Application/Kernel.h"
 
 
 int main(int argc, char* argv[]) {
     START_EASYLOGGINGPP(argc, argv);
 
-    GameWorld logic;
+    Kernel logic;
 
     app()->configure({
         1920,

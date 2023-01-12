@@ -12,13 +12,16 @@
 
 #include <memory>
 #include "Controls/Controller.h"
+#include "collisions/CollisionShape.h"
 
 class Hunt;
 
 class Hunter {
 protected:
+    // since we're actually loading the geometry in this class, we'll own this pointer, as opposed to the Animal class
+    std::unique_ptr<EntityMesh> mesh = nullptr;
+
     // unowned pointer. do not delete
-    EntityMesh* mesh = nullptr;
     Hunt* parent = nullptr;
 
     friend class Camera;
@@ -41,6 +44,9 @@ public:
 
     // weapon information
     bool weaponReady{false};
+
+public: // collision stuff
+    CollisionShape* bounds = nullptr;
 
 public:
     explicit Hunter(Hunt* parent, glm::vec3 position);

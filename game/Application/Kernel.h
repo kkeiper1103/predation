@@ -2,8 +2,8 @@
 // Created by kkeiper1103 on 12/17/22.
 //
 
-#ifndef PREDATION_GAMEWORLD_H
-#define PREDATION_GAMEWORLD_H
+#ifndef PREDATION_KERNEL_H
+#define PREDATION_KERNEL_H
 
 #include <string>
 #include <map>
@@ -24,10 +24,11 @@ enum GameState {
     GS_MAINMENU,
     GS_HUNTSETUP,
     GS_HUNTING,
+    GS_HUNTRESULTS,
     GS_SETTINGS
 };
 
-class GameWorld : public AppLogic {
+class Kernel : public AppLogic {
     std::vector<std::string> assetPaths;
 
     // available areas
@@ -67,8 +68,8 @@ private:
     void SaveGameSettings();
 
 public:
-    GameWorld();
-    ~GameWorld();
+    Kernel();
+    ~Kernel();
 
     void input(SDL_Event *e) override;
     void update(double dt) override;
@@ -85,7 +86,10 @@ public:
     void LoadAvailableWeapons(std::string &prefix, std::vector<int> prices, std::vector<OCARN2::Weapon> weapons);
 
     void LaunchHunt(AreaEntry area, std::vector<AnimalEntry> animals, std::vector<WeaponEntry> weapons);
+
+
+    const std::vector<std::string>& GetAssetPaths();
 };
 
 
-#endif //PREDATION_GAMEWORLD_H
+#endif //PREDATION_KERNEL_H

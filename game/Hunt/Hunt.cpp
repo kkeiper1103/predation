@@ -6,7 +6,7 @@
 
 #include <random>
 
-#include "World/GameWorld.h"
+#include "Application/Kernel.h"
 
 #include "Application.h"
 
@@ -20,7 +20,7 @@ EntityMesh* Hunt::GetMeshForCharacter(OCARN2::Mesh* character) {
 }
 
 
-Hunt::Hunt(GameWorld* parent, const AreaEntry &area, std::vector<AnimalEntry> animals, std::vector<WeaponEntry> weapons) : parent(parent) {
+Hunt::Hunt(Kernel* parent, const AreaEntry &area, std::vector<AnimalEntry> animals, std::vector<WeaponEntry> weapons) : parent(parent) {
     map = load_map_file(area.mapFile.c_str());
     rsc = load_rsc_file(area.rscFile.c_str());
 
@@ -134,10 +134,10 @@ void Hunt::render() {
     DrawTerrainChunkAt((int) floor(hunter->position.x), (int) floor(hunter->position.z));
 
     // get all terrain objects in radius
-    DrawSceneryWithinRadius(128);
+    DrawSceneryWithinRadius(GameSettings::Get().viewRadius);
 
     // @todo
-    for(auto& animal: GetAnimalsInRadius((int) floor(hunter->position.x), (int) floor(hunter->position.z), 128.f)) {
+    for(auto& animal: GetAnimalsInRadius((int) floor(hunter->position.x), (int) floor(hunter->position.z), GameSettings::Get().viewRadius)) {
         animal->draw();
     }
 

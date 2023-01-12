@@ -20,7 +20,10 @@ set(SOURCES
         src/graphics/Shader.cpp
         src/graphics/Texture.cpp
 
-        game/World/GameWorld.cpp
+        src/collisions/BoundingBox.cpp
+        src/collisions/BoundingSphere.cpp
+
+        game/Application/Kernel.cpp
         game/Hunt/Hunt.cpp
         game/Hunt/Terrain/ChunkedTerrain.cpp
         game/Hunt/Terrain/SmoothedTerrain.cpp

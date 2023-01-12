@@ -11,6 +11,9 @@
 #include <memory>
 #include "EntityMesh.h"
 
+
+#include "collisions/CollisionShape.h"
+
 class Hunt;
 
 class Animal {
@@ -22,6 +25,10 @@ public:
     float scale = .02f;
     glm::vec3 rotation{0, 0, 0};
     glm::vec3 position{0, 0, 0};
+
+
+public: // collision stuff
+    CollisionShape* bounds = nullptr;
 
 public:
     // unowned pointer. must exist, DO NOT DELETE

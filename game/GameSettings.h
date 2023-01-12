@@ -56,6 +56,7 @@ struct GameSettings {
     TextureLevels textureLevel = TL_AUTO;
     float brightness = 1.f;
     float fov = 45.f;
+    float viewRadius = 128.f;
 
     // controls
     KeyBindings controls;

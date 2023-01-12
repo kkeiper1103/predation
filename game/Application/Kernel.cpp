@@ -2,13 +2,13 @@
 // Created by kkeiper1103 on 12/17/22.
 //
 
-#include "GameWorld.h"
+#include "Kernel.h"
 
 #include <memory>
 
 #include "Application.h"
 
-GameWorld::GameWorld() {
+Kernel::Kernel() {
     LoadGameSettings();
     LoadAssetPaths();
     LoadProfiles();
@@ -28,13 +28,13 @@ GameWorld::GameWorld() {
 
 }
 
-GameWorld::~GameWorld() {
+Kernel::~Kernel() {
     SaveGameSettings();
     SaveAssetPaths();
     SaveProfiles();
 }
 
-void GameWorld::input(SDL_Event *e) {
+void Kernel::input(SDL_Event *e) {
     if(state == GS_HUNTING) {
         // handle main input
 
@@ -50,7 +50,7 @@ void GameWorld::input(SDL_Event *e) {
     // won't anything not in hunt be gui events?
 }
 
-void GameWorld::update(double dt) {
+void Kernel::update(double dt) {
     if(state == GS_HUNTING) {
         activeHunt->update(dt);
 
@@ -62,7 +62,7 @@ void GameWorld::update(double dt) {
     }
 }
 
-void GameWorld::gui(nk_context* ctx) {
+void Kernel::gui(nk_context* ctx) {
     // if the engine doesn't have any paths to carnivores 2 or ice age, prompt for path
     if( assetPaths.empty() ) {
 
@@ -105,13 +105,13 @@ void GameWorld::gui(nk_context* ctx) {
     }
 }
 
-void GameWorld::render() {
+void Kernel::render() {
     if(state == GS_HUNTING) {
         activeHunt->render();
     } // render world
 }
 
-void GameWorld::drawMainMenu(nk_context *ctx) {
+void Kernel::drawMainMenu(nk_context *ctx) {
     auto config = &app()->config;
 
 
@@ -178,7 +178,7 @@ void GameWorld::drawMainMenu(nk_context *ctx) {
     } nk_end(ctx);
 }
 
-void GameWorld::drawHuntSetup(nk_context *ctx) {
+void Kernel::drawHuntSetup(nk_context *ctx) {
     auto config = &app()->config;
 
     if(nk_begin(ctx, "Locations", nk_rect(50, 50, 300, 500), NK_WINDOW_TITLE|NK_WINDOW_BORDER|NK_WINDOW_MOVABLE)) {
@@ -262,7 +262,7 @@ void GameWorld::drawHuntSetup(nk_context *ctx) {
     } nk_end(ctx);
 }
 
-void GameWorld::drawSettings(nk_context *ctx) {
+void Kernel::drawSettings(nk_context *ctx) {
     auto config = &app()->config;
 
     // game. "Accept Changes" Button lives here
@@ -340,6 +340,16 @@ void GameWorld::drawSettings(nk_context *ctx) {
 
             nk_combo_end(ctx);
         }
+
+
+        nk_layout_row_dynamic(ctx, 25, 2);
+        nk_label(ctx, "Field of Vision", NK_TEXT_ALIGN_RIGHT);
+        nk_slider_float(ctx, 30, &gameSettings.fov, 70, 1);
+
+
+        nk_layout_row_dynamic(ctx, 25, 2);
+        nk_label(ctx, "View Radius", NK_TEXT_ALIGN_RIGHT);
+        nk_slider_float(ctx, 64, &gameSettings.viewRadius, 256, 5);
 
     } nk_end(ctx);
 
@@ -421,7 +431,7 @@ void GameWorld::drawSettings(nk_context *ctx) {
     } nk_end(ctx);
 }
 
-void GameWorld::drawProfileSelect(nk_context *ctx) {
+void Kernel::drawProfileSelect(nk_context *ctx) {
     auto config = &app()->config;
 
     int width = 300,
@@ -476,7 +486,7 @@ void GameWorld::drawProfileSelect(nk_context *ctx) {
     } nk_end(ctx);
 }
 
-void GameWorld::LoadProfiles() {
+void Kernel::LoadProfiles() {
     std::fstream f("resources/profiles.dat", f.binary | f.in);
 
     if(!f.is_open()) {
@@ -502,7 +512,7 @@ void GameWorld::LoadProfiles() {
     f.close();
 }
 
-void GameWorld::SaveProfiles() {
+void Kernel::SaveProfiles() {
     // next, write list of profiles to .dat file
     std::fstream f("resources/profiles.dat", f.binary | f.trunc | f.out);
 
@@ -515,7 +525,7 @@ void GameWorld::SaveProfiles() {
 }
 
 
-void GameWorld::LoadAssetPaths() {
+void Kernel::LoadAssetPaths() {
     std::fstream f("resources/assets.txt", f.in);
 
     if(!f.is_open()) {
@@ -532,7 +542,7 @@ void GameWorld::LoadAssetPaths() {
     f.close();
 }
 
-void GameWorld::SaveAssetPaths() {
+void Kernel::SaveAssetPaths() {
     std::fstream f("resources/assets.txt", f.trunc | f.out);
 
     if(!f.is_open()) {
@@ -546,7 +556,7 @@ void GameWorld::SaveAssetPaths() {
     f.close();
 }
 
-void GameWorld::LoadGameSettings() {
+void Kernel::LoadGameSettings() {
 
     std::fstream f("resources/settings.dat", f.binary | f.in);
 
@@ -559,7 +569,7 @@ void GameWorld::LoadGameSettings() {
     f.close();
 }
 
-void GameWorld::SaveGameSettings() {
+void Kernel::SaveGameSettings() {
     std::fstream f("resources/settings.dat", f.binary | f.trunc | f.out);
 
     if(!f.is_open()) {
@@ -577,7 +587,7 @@ void GameWorld::SaveGameSettings() {
  * @param assetPrefix
  * @param areas
  */
-void GameWorld::LoadAvailableAreas(std::string &assetPrefix, const std::vector<int> &areas) {
+void Kernel::LoadAvailableAreas(std::string &assetPrefix, const std::vector<int> &areas) {
     for(auto i=0; i < areas.size(); i++) {
         int price = areas[i];
         std::string mapname{ assetPrefix + "/AREAS/AREA" + std::to_string(i+1) + ".MAP"};
@@ -621,7 +631,7 @@ void GameWorld::LoadAvailableAreas(std::string &assetPrefix, const std::vector<i
  * @param prefix
  * @param animalPrices
  */
-void GameWorld::LoadAvailableAnimals(std::string &prefix, const std::vector<int> &animalPrices, const std::vector<OCARN2::Dino>& animals) {
+void Kernel::LoadAvailableAnimals(std::string &prefix, const std::vector<int> &animalPrices, const std::vector<OCARN2::Dino>& animals) {
 
     // reverse the vectors, as this will make them easier to work with since they're different sizes.
     // the animals/prices match up based on the last element in the original array, so by reversing them,
@@ -679,7 +689,7 @@ void GameWorld::LoadAvailableAnimals(std::string &prefix, const std::vector<int>
  * @param prices
  * @param weapons
  */
-void GameWorld::LoadAvailableWeapons(std::string &prefix, std::vector<int> prices, std::vector<OCARN2::Weapon> weapons) {
+void Kernel::LoadAvailableWeapons(std::string &prefix, std::vector<int> prices, std::vector<OCARN2::Weapon> weapons) {
     for(auto i=0; i < prices.size(); i++) {
         auto price = prices[i];
         auto weapon = weapons[i];
@@ -715,7 +725,7 @@ void GameWorld::LoadAvailableWeapons(std::string &prefix, std::vector<int> price
 
 
 
-void GameWorld::LaunchHunt(AreaEntry area, std::vector<AnimalEntry> animals, std::vector<WeaponEntry> weapons) {
+void Kernel::LaunchHunt(AreaEntry area, std::vector<AnimalEntry> animals, std::vector<WeaponEntry> weapons) {
     LOG(INFO) << area.title;
     LOG(INFO) << std::endl << area.description;
 
@@ -738,4 +748,8 @@ void GameWorld::LaunchHunt(AreaEntry area, std::vector<AnimalEntry> animals, std
         // all good, start hunting
         activeHunt = std::make_unique<Hunt>( this, area, animals, weapons );
     }
+}
+
+const std::vector<std::string> &Kernel::GetAssetPaths() {
+    return assetPaths;
 }

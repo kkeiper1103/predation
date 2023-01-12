@@ -32,14 +32,14 @@ public:
     void draw();
 
 protected:
-    struct VerticesReturnObject {
+    struct vertex_collection_t {
         std::vector<GLuint> indices;
         std::vector<float> positions;
         std::vector<float> normals;
         std::vector<float> uvs;
     };
 
-    VerticesReturnObject generateVertices();
+    vertex_collection_t generateVertices();
 
     unsigned long numElements{0};
 };

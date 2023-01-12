@@ -5,6 +5,7 @@
 #include "Hunter.h"
 
 #include "Hunt/Hunt.h"
+#include "Application/Kernel.h"
 #include "Controls/KeyboardController.h"
 #include "Controls/GamepadController.h"
 
@@ -112,6 +113,16 @@ Hunter::Hunter(Hunt* parent, glm::vec3 position) :
 
     if(SDL_IsGameController(0) == SDL_TRUE)
         controller = std::make_unique<GamepadController>(0);
+
+    // make mesh for bounding boxes / collisions
+    auto assetPaths = parent->parent->GetAssetPaths();
+    auto data = load_car_file( std::string {assetPaths[0] + "/HUNTER1.CAR"}.c_str() );
+
+    mesh = std::make_unique<EntityMesh>(&data);
+
+    LOG(INFO) << data.name << " has been loaded";
+
+    free_mesh(data);
 }
 
 Hunter::~Hunter() {

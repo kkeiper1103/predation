@@ -5,7 +5,7 @@
 #ifndef PREDATION_CAMERA_H
 #define PREDATION_CAMERA_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 

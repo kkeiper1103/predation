@@ -7,7 +7,7 @@
 
 #include <fstream>
 #include <easyloggingpp/easylogging++.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 enum Measurements {
     MS_METRIC = 0,

@@ -5,7 +5,7 @@
 #ifndef PREDATION_APPLOGIC_H
 #define PREDATION_APPLOGIC_H
 
-#include <SDL2/SDL_events.h>
+#include <SDL_events.h>
 #include <nuklear/nuklear.h>
 
 class AppLogic {

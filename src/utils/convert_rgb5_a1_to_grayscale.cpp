@@ -13,7 +13,7 @@ std::vector<unsigned short> to_grayscale(unsigned short *texture, int width, int
             unsigned short pixel = texture[z * 256 + x];
 
             // 31 is the top of the range, due to 5 bits of fidelity 2^5 = 32
-            ushort b = (pixel >> 0) & 31,
+            unsigned short b = (pixel >> 0) & 31,
                     g = (pixel >> 5) & 31,
                     r = (pixel >> 10) & 31;
 

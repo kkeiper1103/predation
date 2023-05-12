@@ -8,7 +8,7 @@
 #include <memory>
 #include <any>
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <glad/glad.h>
 #include <easyloggingpp/easylogging++.h>
 

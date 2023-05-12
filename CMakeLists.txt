@@ -4,7 +4,7 @@ project(predation)
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(OpenGL REQUIRED)
-find_package(SDL2 REQUIRED)
+add_subdirectory(vendor/SDL2)
 
 set(SOURCES
 
@@ -53,3 +53,14 @@ target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include ve
 add_executable(testrunner tests/rendermodel.cpp ${SOURCES})
 target_link_libraries(testrunner PRIVATE OpenGL::GL SDL2::SDL2)
 target_include_directories(testrunner PRIVATE vendor vendor/glad/include vendor/glm src/ game/)
+
+add_custom_command(
+        TARGET ${PROJECT_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:SDL2::SDL2>
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMENT "Copying SDL2 DLL to binary directory"
+)
+
+add_custom_target(copy_sdl2_dll DEPENDS ${PROJECT_NAME})

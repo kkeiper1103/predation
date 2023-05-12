@@ -14,7 +14,7 @@
 
 
 template <typename T>
-void BufferAttribute(int location, uint numComponents, const std::vector<T>& data) {
+void BufferAttribute(int location, unsigned int numComponents, const std::vector<T>& data) {
     if( data.size() % numComponents != 0 ) {
         LOG(ERROR) << "Buffer Size is not a Multiple of NumComponents!";
         return;

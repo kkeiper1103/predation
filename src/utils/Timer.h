@@ -5,7 +5,7 @@
 #ifndef BREAKOUTGL_TIMER_H
 #define BREAKOUTGL_TIMER_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <functional>
 
 class Timer {

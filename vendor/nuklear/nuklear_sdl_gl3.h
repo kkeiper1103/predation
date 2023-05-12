@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <glad/glad.h>
 
 NK_API struct nk_context*   nk_sdl_init(SDL_Window *win);

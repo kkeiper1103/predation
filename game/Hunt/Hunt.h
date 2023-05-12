@@ -5,7 +5,8 @@
 #ifndef PREDATION_HUNT_H
 #define PREDATION_HUNT_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
+
 #include <nuklear/nuklear.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>

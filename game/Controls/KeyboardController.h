@@ -5,7 +5,7 @@
 #ifndef PREDATION_KEYBOARDCONTROLLER_H
 #define PREDATION_KEYBOARDCONTROLLER_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "Controller.h"
 
 #include <map>

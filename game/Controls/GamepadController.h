@@ -5,7 +5,7 @@
 #ifndef PREDATION_GAMEPADCONTROLLER_H
 #define PREDATION_GAMEPADCONTROLLER_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "Controller.h"
 
 class GamepadController : public Controller {

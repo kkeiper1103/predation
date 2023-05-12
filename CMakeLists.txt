@@ -42,7 +42,7 @@ set(SOURCES
         vendor/glad/src/glad.c
         )
 
-add_executable(${PROJECT_NAME} main.cpp ${SOURCES})
+add_executable(${PROJECT_NAME} main.cpp ${SOURCES} src/graphics/UniformBuffer.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL SDL2::SDL2)
 target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include vendor/glm src/ game/ )

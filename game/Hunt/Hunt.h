@@ -26,6 +26,8 @@
 #include "Camera.h"
 #include "Entities/Hunter.h"
 
+#include "graphics/UniformBuffer.h"
+
 // forward declaration for parent/child relationship
 class Kernel;
 
@@ -91,6 +93,9 @@ public:
     void DrawSceneryWithinRadius(int radius);
 
     //
+    UniformBlockData uniforms;
+    UniformBuffer<UniformBlockData> uniformBuffer { UniformBuffer<UniformBlockData>::create() };
+
     glm::mat4 getViewMatrix() { return hunter->camera.GetViewMatrix(); }
     glm::mat4 getProjectionMatrix() { return hunter->camera.GetProjectionMatrix(); }
 

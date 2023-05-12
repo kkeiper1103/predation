@@ -60,6 +60,9 @@ Hunt::Hunt(Kernel* parent, const AreaEntry &area, std::vector<AnimalEntry> anima
     // move mouse to center and set relative?
     SDL_SetRelativeMouseMode(SDL_TRUE);
     SDL_WarpMouseInWindow(app()->window, app()->config.width / 2.f, app()->config.height / 2.f);
+
+    // bind the matrices block
+    uniformBuffer.bindToBlock(0);
 }
 
 Hunt::~Hunt() {
@@ -129,6 +132,9 @@ void Hunt::gui(nk_context *ctx) {
 }
 
 void Hunt::render() {
+    uniforms.projection = hunter->camera.GetProjectionMatrix();
+    uniforms.view = hunter->camera.GetViewMatrix();
+    uniformBuffer.setData(&uniforms);
 
     // draw the containing chunk, as well as a radius around it
     DrawTerrainChunkAt((int) floor(hunter->position.x), (int) floor(hunter->position.z));

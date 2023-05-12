@@ -137,7 +137,10 @@ Application::Application() {
 
     gladLoadGLLoader(SDL_GL_GetProcAddress);
 
-    SDL_GL_SetSwapInterval(1);
+    LOG(INFO) << "GL: " << glGetString(GL_VERSION);
+    LOG(INFO) << "GLSL: " << glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+    SDL_GL_SetSwapInterval(-1);
 
     // resize and set titles and everything
     configure(config);
@@ -147,6 +150,8 @@ Application::Application() {
 
     // @todo use real rng
     srand(time(NULL));
+    std::mt19937 engine;
+    engine.seed( time(nullptr) );
 }
 
 Application::~Application() {

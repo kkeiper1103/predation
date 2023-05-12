@@ -112,13 +112,9 @@ void ChunkedTerrain::UploadTexture() {
     glBindTexture(GL_TEXTURE_2D_ARRAY, textureId);
     glTexStorage3D(GL_TEXTURE_2D_ARRAY, mipLevelCount, GL_RGB5_A1, width, height, layerCount);
 
-    std::vector<GLushort> tex(rsc->textures.size() * 128 * 128, 0);
-    for(auto i=0; i < rsc->textures.size(); i++) {
-        memcpy(&tex[i * 128 * 128], rsc->textures[i].data, rsc->textures[i].size);
-    }
-
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, width, height, layerCount,
-                    GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &tex[0]);
+    // load each texture into a layer on the 2d array
+    for(auto i=0; i < rsc->textures.size(); i++)
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, width, height, 1, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, rsc->textures[i].data);
 
     glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MAG_FILTER, GL_NEAREST);

@@ -84,7 +84,7 @@ GLuint Shader::createShaderFragment(GLuint type, const char *source) {
     return id;
 }
 
-std::shared_ptr<Shader> Shader::FromFiles(const std::string &vsFile, const std::string &fsFile) {
+Shader::Ptr Shader::FromFiles(const std::string &vsFile, const std::string &fsFile) {
     // read vertex source
     char errors[255];
     char* vsSource = stb_include_file((char*) vsFile.data(), "", "resources/shaders", errors);
@@ -102,7 +102,7 @@ std::shared_ptr<Shader> Shader::FromFiles(const std::string &vsFile, const std::
     return s;
 }
 
-std::shared_ptr<Shader> Shader::FromFiles(const std::string &vsFile, const std::string &fsFile, const std::string &gsFile) {
+Shader::Ptr Shader::FromFiles(const std::string &vsFile, const std::string &fsFile, const std::string &gsFile) {
     // read vertex source
     char errors[255];
     char* vsSource = stb_include_file((char*) vsFile.data(), "", "resources/shaders", errors);

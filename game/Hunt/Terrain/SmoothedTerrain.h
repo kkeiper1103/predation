@@ -10,16 +10,13 @@
 #include <glm/glm.hpp>
 #include <ocarn2.h>
 #include "graphics/Shader.h"
+#include "ITerrain.h"
 
 class Hunt;
 
-struct SmoothedTerrainVertex {
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec3 texture;
-};
 
-class SmoothedTerrain {
+
+class SmoothedTerrain : public ITerrain {
 protected:
     GLuint vaoId {0};
     GLuint textureId {0};

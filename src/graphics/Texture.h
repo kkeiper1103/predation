@@ -7,10 +7,13 @@
 
 
 #include <string>
+#include <memory>
 
 #include <glad/glad.h>
 #include <stb/stb_image.h>
 #include <easyloggingpp/easylogging++.h>
+
+#include "gl_compat.h"
 
 class Texture {
 protected:
@@ -32,6 +35,8 @@ private:
     void upload();
 
 public:
+    using Ptr = std::shared_ptr<Texture>;
+
     Texture(unsigned char* data, int width, int height, GLint internalFormat = GL_RGBA, GLenum sourceFormat = GL_RGBA, GLenum sourceDataType = GL_UNSIGNED_BYTE);
     explicit Texture(const std::string& file, GLint internalFormat = GL_RGBA, GLenum sourceFormat = GL_RGBA, GLenum sourceDataType = GL_UNSIGNED_BYTE);
     ~Texture();

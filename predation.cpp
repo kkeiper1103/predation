@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include "predation.h"
+
 #include <easyloggingpp/easylogging++.h>
 INITIALIZE_EASYLOGGINGPP
 

@@ -22,6 +22,8 @@ GLuint programId = 0;
 std::vector<GLuint> shaders;
 
 public:
+    using Ptr = std::shared_ptr<Shader>;
+
     Shader(const char* vs, const char* fs, const char* gs = nullptr);
     Shader(const std::string& vs, const std::string& fs);
     Shader(const std::string& vs, const std::string& fs, const std::string& gs);
@@ -30,8 +32,8 @@ public:
 
     inline void use() const { glUseProgram(programId); }
 
-    static std::shared_ptr<Shader> FromFiles(const std::string& vsFile, const std::string& fsFile);
-    static std::shared_ptr<Shader> FromFiles(const std::string& vsFile, const std::string& fsFile, const std::string& gsFile);
+    static Ptr FromFiles(const std::string& vsFile, const std::string& fsFile);
+    static Ptr FromFiles(const std::string& vsFile, const std::string& fsFile, const std::string& gsFile);
 
     // uniform stuff
     void setMat4(const std::string& name, const glm::mat4& value) const;

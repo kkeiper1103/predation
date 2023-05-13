@@ -12,23 +12,10 @@
 #include <ocarn2.h>
 #include "graphics/Shader.h"
 
+#include "ITerrain.h"
 
-struct TerrainVertex {
-    glm::vec3 position;
-    glm::vec3 texture; // <s, t, layerid>
-    glm::vec3 normal;
-};
 
-struct TerrainChunk {
-    GLuint vaoId{0};
-    GLuint bufferId{0};
-    GLuint eboId{0};
-
-    int vertexCount = 0;
-    std::vector<TerrainVertex> data;
-};
-
-class ChunkedTerrain {
+class ChunkedTerrain : public ITerrain {
 protected:
     // texture_2d_array variable
     GLuint textureId{0};
@@ -47,20 +34,18 @@ private:
     std::vector<glm::vec3> spawns;
 
 public:
-    std::shared_ptr<Shader> shader;
-    int chunksPerSide;
 
     ChunkedTerrain(OCARN2::Map* map, OCARN2::Rsc* rsc, int chunksPerSide);
     ~ChunkedTerrain();
 
 
-    void draw(int chunkX, int chunkZ);
+    void draw(int chunkX, int chunkZ) override;
 
 
-    float GetHeight(int x, int z);
-    float GetHeight(int idx);
+    float GetHeight(int x, int z) override;
+    float GetHeight(int idx) override;
 
-    glm::vec3 GetRandomSpawnLocation();
+    glm::vec3 GetRandomSpawnLocation() override;
 };
 
 

@@ -9,6 +9,9 @@
 #include <glm/glm.hpp>
 
 #include <vector>
+#include <memory>
+
+#include "gl_compat.h"
 
 #include "Vertex.h"
 
@@ -18,6 +21,8 @@
 
 class Mesh {
 public:
+    using Ptr = std::shared_ptr<Mesh>;
+
     typedef GLushort idx_t;
 
     std::shared_ptr<Shader> shader;

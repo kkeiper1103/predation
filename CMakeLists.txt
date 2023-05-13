@@ -14,11 +14,16 @@ set(SOURCES
         src/utils/Timer.cpp
         src/utils/convert_rgb5_a1_to_grayscale.cpp
 
+        src/graphics/gl_compat.h
+        src/graphics/gl_compat_textures.h
+
         src/graphics/Framebuffer.cpp
         src/graphics/Mesh.cpp
         src/graphics/Model.cpp
         src/graphics/Shader.cpp
         src/graphics/Texture.cpp
+        src/graphics/UniformBuffer.cpp
+        src/graphics/Transform.h
 
         src/collisions/BoundingBox.cpp
         src/collisions/BoundingSphere.cpp
@@ -37,16 +42,23 @@ set(SOURCES
         game/Controls/KeyboardController.cpp
         game/Controls/GamepadController.cpp
 
+        game/Hunt/Terrain/RandomTerrain.cpp
+        game/Hunt/Terrain/ITerrain.h
+
         vendor/nuklear/nuklear.c
         vendor/easyloggingpp/easylogging++.cc
         vendor/glad/src/glad.c
         )
 
-add_executable(${PROJECT_NAME} main.cpp ${SOURCES} src/graphics/UniformBuffer.cpp)
+add_executable(${PROJECT_NAME} predation.cpp ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL SDL2::SDL2)
 target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include vendor/glm src/ game/ )
 
+
+add_executable(editor editor.cpp ${SOURCES})
+target_link_libraries(editor PRIVATE OpenGL::GL SDL2::SDL2)
+target_include_directories(editor PRIVATE vendor vendor/glad/include vendor/glm src/ game/ )
 
 
 # render tests

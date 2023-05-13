@@ -8,10 +8,9 @@
 #include "ChunkedTerrain.h"
 
 
+ChunkedTerrain::ChunkedTerrain(OCARN2::Map *map, OCARN2::Rsc* rsc, int chunksPerSide) : map{map}, rsc{rsc} {
+    ITerrain::chunksPerSide = chunksPerSide;
 
-
-
-ChunkedTerrain::ChunkedTerrain(OCARN2::Map *map, OCARN2::Rsc* rsc, int chunksPerSide) : map{map}, rsc{rsc}, chunksPerSide{chunksPerSide} {
     // pre-allocate the memory by creating empty chunks
     chunks.resize(chunksPerSide);
     for(int z=0; z < chunksPerSide; z++) {
@@ -135,11 +134,6 @@ glm::vec2 rotateUV(glm::vec2 uv, float rotation) {
         cos_ * (uv.x - mid) + sin_ * (uv.y - mid) + mid,
         cos_ * (uv.y - mid) - sin_ * (uv.x - mid) + mid
     };
-}
-
-// get triangle normal
-glm::vec3 calculateTriangleNormal( glm::vec3 A, glm::vec3 B ) {
-    return glm::normalize( glm::cross(A, B) );
 }
 
 //

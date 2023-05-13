@@ -37,7 +37,7 @@ public:
     OCARN2::Map map;
     OCARN2::Rsc rsc;
 
-    std::unique_ptr<ChunkedTerrain> terrain;
+    std::unique_ptr<ITerrain> terrain;
 
     std::vector<OCARN2::Mesh> animalMeshes;
     std::vector<OCARN2::Mesh> weaponMeshes;

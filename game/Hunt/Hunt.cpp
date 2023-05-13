@@ -161,8 +161,7 @@ void Hunt::DrawTerrainChunkAt(int x, int z) {
     int chunkX = floor( x / terrain->chunksPerSide );
     int chunkZ = floor( z / terrain->chunksPerSide );
 
-    terrain->shader->setMat4("view", hunter->camera.GetViewMatrix());
-    terrain->shader->setMat4("projection", hunter->camera.GetProjectionMatrix());
+
     terrain->shader->setMat4("model", glm::mat4(1.f));
 
     terrain->draw(chunkX, chunkZ);
@@ -246,15 +245,15 @@ void Hunt::DrawSceneryWithinRadius(int radius) {
 }
 
 void Hunt::SpawnAnimals(int min, int max) {
-    std::uniform_int_distribution<> distribution(min, max);
+    std::uniform_int_distribution distribution(min, max);
 
     int spawnLimit = distribution(gen);
     printf("Spawning %d Animals\n", spawnLimit);
     this->animals.reserve(spawnLimit);
 
 
-    std::uniform_int_distribution<> animalTypeDistribution(0, animalMeshes.size() - 1);
-    std::uniform_int_distribution<> animalPositionDistribution(0, 1023); // between 0 and map_size
+    std::uniform_int_distribution animalTypeDistribution(0, (int) (animalMeshes.size() - 1));
+    std::uniform_int_distribution animalPositionDistribution(0, 1023); // between 0 and map_size
     for( auto i=0; i < spawnLimit; i++ ) {
         auto type = animalMeshes[ animalTypeDistribution(gen) ];
 

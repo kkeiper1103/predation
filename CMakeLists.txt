@@ -50,12 +50,12 @@ set(SOURCES
 add_executable(${PROJECT_NAME} predation.cpp ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL SDL2::SDL2)
-target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include vendor/glm src/ game/ )
+target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include vendor/glm src/ game/ ./)
 
 
 add_executable(editor editor.cpp ${SOURCES})
 target_link_libraries(editor PRIVATE OpenGL::GL SDL2::SDL2)
-target_include_directories(editor PRIVATE vendor vendor/glad/include vendor/glm src/ game/ )
+target_include_directories(editor PRIVATE vendor vendor/glad/include vendor/glm src/ game/ ./)
 
 
 # render tests

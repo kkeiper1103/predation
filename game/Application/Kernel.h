@@ -21,6 +21,8 @@
 #include "WeaponEntry.h"
 #include "Hunt/Hunt.h"
 
+#include "predation.h"
+
 enum GameState {
     GS_CHOOSEPROFILE,
     GS_MAINMENU,
@@ -100,6 +102,5 @@ public:
 
     const std::vector<std::string>& GetAssetPaths();
 };
-
 
 #endif //PREDATION_KERNEL_H

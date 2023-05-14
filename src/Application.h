@@ -23,6 +23,11 @@ struct ApplicationConfig {
     std::string title = "Default";
 };
 
+struct Fonts {
+    struct nk_font* title = nullptr;
+    struct nk_font* body = nullptr;
+};
+
 class Application {
 public:
     bool running = true;
@@ -32,6 +37,8 @@ public:
     ApplicationConfig config {};
     struct nk_context* nkContext = nullptr;
     struct nk_font_atlas *atlas = nullptr;
+
+    Fonts fonts;
 
 public:
     Application();
@@ -49,5 +56,17 @@ typedef std::unique_ptr<Application> ApplicationPtr;
 extern ApplicationPtr application_;
 ApplicationPtr& app();
 std::any app(const std::string& resolve);
+
+
+
+inline bool ui_panel_begin(nk_context* ctx, const char* title, struct nk_rect bounds, int flags) {
+    nk_style_set_font(ctx, &app()->fonts.title->handle);
+
+    auto result = nk_begin(ctx, title, bounds, flags);
+
+    nk_style_set_font(ctx, &app()->fonts.body->handle);
+
+    return result;
+}
 
 #endif //PREDATION_APPLICATION_H

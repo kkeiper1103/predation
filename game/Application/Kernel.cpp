@@ -174,9 +174,10 @@ void Kernel::drawMainMenu(nk_context *ctx) {
 
     } nk_end(ctx);
 
+    if(ui_panel_begin(ctx, "Predation",
+                      nk_rect( 20, config->height - 20 - MENU_HEIGHT, 300, MENU_HEIGHT ), NK_WINDOW_TITLE|NK_WINDOW_BORDER|NK_WINDOW_NO_SCROLLBAR)) {
 
-    if(nk_begin(ctx, "Main Menu", nk_rect( 20, config->height - 20 - 300, 300, 300 ), NK_WINDOW_BORDER|NK_WINDOW_NO_SCROLLBAR)) {
-        nk_layout_row_dynamic(ctx, 35, 1);
+        nk_layout_row_dynamic(ctx, BUTTON_HEIGHT, 1);
 
         if(nk_button_label(ctx, "Hunt")) {
             state = GS_HUNTSETUP;
@@ -217,7 +218,7 @@ void Kernel::drawHuntSetup(nk_context *ctx) {
     nk_end(ctx);
 
 
-    if(nk_begin(ctx, "Locations", nk_rect(50, 50, 300, 500), NK_WINDOW_TITLE|NK_WINDOW_BORDER|NK_WINDOW_MOVABLE)) {
+    if(ui_panel_begin(ctx, "Locations", nk_rect(50, 50, 300, 500), NK_WINDOW_TITLE|NK_WINDOW_BORDER|NK_WINDOW_MOVABLE)) {
         nk_layout_row_dynamic(ctx, 30, 1);
 
         for(auto i=0; i < areas.size(); i++) {
@@ -229,7 +230,7 @@ void Kernel::drawHuntSetup(nk_context *ctx) {
         }
     } nk_end(ctx);
 
-    if(nk_begin(ctx, "Animals", nk_rect(400, 50, 300, 700), NK_WINDOW_TITLE|NK_WINDOW_BORDER|NK_WINDOW_MOVABLE)) {
+    if(ui_panel_begin(ctx, "Animals", nk_rect(400, 50, 300, 700), NK_WINDOW_TITLE|NK_WINDOW_BORDER|NK_WINDOW_MOVABLE)) {
         nk_layout_row_dynamic(ctx, 30, 1);
 
         for(auto i=0; i < availableAnimals.size(); i++) {
@@ -242,7 +243,7 @@ void Kernel::drawHuntSetup(nk_context *ctx) {
         }
     } nk_end(ctx);
 
-    if(nk_begin(ctx, "Weapons", nk_rect(800, 50, 300, 700), NK_WINDOW_TITLE|NK_WINDOW_BORDER|NK_WINDOW_MOVABLE)) {
+    if(ui_panel_begin(ctx, "Weapons", nk_rect(800, 50, 300, 700), NK_WINDOW_TITLE|NK_WINDOW_BORDER|NK_WINDOW_MOVABLE)) {
         nk_layout_row_dynamic(ctx, 30, 1);
 
         for(auto i=0; i < availableWeapons.size(); i++) {
@@ -256,7 +257,7 @@ void Kernel::drawHuntSetup(nk_context *ctx) {
     } nk_end(ctx);
 
     // time of day
-    if(nk_begin(ctx, "Time of Day", nk_rect(20, 700, 300, 200), NK_WINDOW_MOVABLE|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_TITLE)) {
+    if(ui_panel_begin(ctx, "Hunt Time", nk_rect(20, 700, 300, 200), NK_WINDOW_MOVABLE|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_TITLE|NK_WINDOW_BORDER)) {
         nk_layout_row_dynamic(ctx, 25, 1);
 
         if( nk_option_label(ctx, "Morning", huntConfig.timeOfDay == 0) ) huntConfig.timeOfDay = 0;
@@ -265,9 +266,9 @@ void Kernel::drawHuntSetup(nk_context *ctx) {
     } nk_end(ctx);
 
     // back / hunt
-    if(nk_begin(ctx, "Start Hunt", nk_rect(0, config->height - 50, config->width, 50), NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_BORDER)) {
+    if(nk_begin(ctx, "Start Hunt", nk_rect(0, config->height - 54, config->width, 54), NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_BORDER)) {
 
-        nk_layout_row_dynamic(ctx, 50, 6);
+        nk_layout_row_dynamic(ctx, BUTTON_HEIGHT, 6);
 
         if(nk_button_label(ctx, "<< Back")) {
             state = GS_MAINMENU;
@@ -302,7 +303,7 @@ void Kernel::drawSettings(nk_context *ctx) {
     auto config = &app()->config;
 
     // game. "Accept Changes" Button lives here
-    if( nk_begin(ctx, "Game", nk_rect(10, 10, config->width / 2 - 5, config->height / 2 - 5), NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR) ) {
+    if( ui_panel_begin(ctx, "Game", nk_rect(10, 10, config->width / 2 - 5, config->height / 2 - 5), NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR) ) {
 
         nk_layout_row_dynamic(ctx, 25, 2);
 
@@ -346,7 +347,7 @@ void Kernel::drawSettings(nk_context *ctx) {
     } nk_end(ctx);
 
     // video
-    if( nk_begin(ctx, "Video", nk_rect(10, config->height / 2 + 5, config->width / 2 - 5, config->height / 2 - 5), NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR) ) {
+    if( ui_panel_begin(ctx, "Video", nk_rect(10, config->height / 2 + 5, config->width / 2 - 5, config->height / 2 - 5), NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR) ) {
 
         nk_layout_row_dynamic(ctx, 25, 1);
 
@@ -390,7 +391,7 @@ void Kernel::drawSettings(nk_context *ctx) {
     } nk_end(ctx);
 
     // controls
-    if( nk_begin(ctx, "Controls", nk_rect(config->width / 2 + 5, 10, config->width / 2 - 5, config->height - 10), NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR) ) {
+    if( ui_panel_begin(ctx, "Controls", nk_rect(config->width / 2 + 5, 10, config->width / 2 - 5, config->height - 10), NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR) ) {
 
         nk_layout_row_begin(ctx, NK_STATIC, 25, 2);
 
@@ -481,7 +482,7 @@ void Kernel::drawProfileSelect(nk_context *ctx) {
     }
     nk_end(ctx);
 
-    if(nk_begin(ctx, "Profile Select", nk_rect( config->width / 2 - width / 2, config->height / 2 - height / 2, width, height ), NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_BORDER|NK_WINDOW_TITLE)) {
+    if(ui_panel_begin(ctx, "Profiles", nk_rect( config->width / 2 - width / 2, config->height / 2 - height / 2, width, height ), NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_BORDER|NK_WINDOW_TITLE)) {
 
         nk_layout_row_dynamic(ctx, 35, 1);
 

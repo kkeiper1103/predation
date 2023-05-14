@@ -114,11 +114,9 @@ void Hunt::gui(nk_context *ctx) {
     static auto config = &app()->config;
 
     if(isPaused) {
-        static int width = 300;
-        static int height = 500;
-        if(nk_begin(ctx, "Pause Menu", nk_rect( config->width / 2 - width / 2, config->height / 2 - height / 2, width, height ), NK_WINDOW_BORDER|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_TITLE)) {
+        if(ui_panel_begin(ctx, "Paused", nk_rect( config->width / 2 - MENU_WIDTH / 2, config->height / 2 - MENU_HEIGHT / 2, MENU_WIDTH, MENU_HEIGHT ), NK_WINDOW_BORDER|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_TITLE)) {
 
-            nk_layout_row_dynamic(ctx, 35, 1);
+            nk_layout_row_dynamic(ctx, BUTTON_HEIGHT, 1);
 
             if(nk_button_label(ctx, "Return to Main Menu")) {
                 isComplete = true;

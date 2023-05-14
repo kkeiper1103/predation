@@ -12,10 +12,10 @@
 
 
 void Skybox::update(double dt) {
-    rotation.y += .5f * dt;
+    rotation.x += windspeed * dt;
 
     model = glm::mat4(1.f);
-    model = glm::rotate(model, glm::radians(rotation.y), {0, 1, 0});
+    model = glm::rotate(model, glm::radians(rotation.x), {1, 0, 0});
 }
 
 void Skybox::draw() {
@@ -149,8 +149,9 @@ Skybox::vertex_collection_t Skybox::generateVertices() {
 
             // uv
 
-            uvs.push_back( u + uOffset);
-            uvs.push_back( 1 - v );
+            constexpr float scaleFactor = 10.0;
+            uvs.push_back( (u + uOffset) * scaleFactor );
+            uvs.push_back( (1 - v) * scaleFactor );
 
             verticesRow.push_back( index ++ );
 

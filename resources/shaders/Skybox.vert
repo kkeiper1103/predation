@@ -12,7 +12,7 @@ out vec2 fTexture;
 
 void main()
 {
-    vec4 position = projection * mat4(mat3(view)) * vec4(vPosition, 1);
+    vec4 position = projection * mat4(mat3(view)) * model * vec4(vPosition, 1);
 
     gl_Position = position.xyww;
 

@@ -14,6 +14,8 @@ protected:
     GLuint buffers[4] {0, 0, 0, 0};
     GLuint textureId{0};
 
+    float windspeed = 0.5f;
+
     int width{256};
     int height{256};
 

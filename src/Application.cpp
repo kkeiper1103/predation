@@ -232,8 +232,13 @@ Application &Application::configure(ApplicationConfig config) {
     if(nkContext == nullptr) {
         nkContext = nk_sdl_init(window);
 
+
         nk_sdl_font_stash_begin(&atlas);
+        fonts.title = nk_font_atlas_add_from_file(atlas, "resources/fonts/After_Shok.ttf", 36, 0);
+        fonts.body = nk_font_atlas_add_from_file(atlas, "resources/fonts/Arcon-Regular.otf", 20, 0);
         nk_sdl_font_stash_end();
+
+        nk_style_set_font(nkContext, &fonts.body->handle);
     }
 
     return *this;

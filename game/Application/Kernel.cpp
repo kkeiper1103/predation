@@ -13,7 +13,6 @@ Kernel::Kernel() {
     LoadAssetPaths();
     LoadProfiles();
 
-
     //
     using namespace OCARN2;
     for(auto& path: assetPaths) {
@@ -29,6 +28,8 @@ Kernel::Kernel() {
 }
 
 Kernel::~Kernel() {
+    glDeleteTextures(1, &background.tex);
+
     SaveGameSettings();
     SaveAssetPaths();
     SaveProfiles();
@@ -63,6 +64,29 @@ void Kernel::update(double dt) {
 }
 
 void Kernel::gui(nk_context* ctx) {
+
+    //
+    if(background.pixels == nullptr) {
+        background.pixels = stbi_load("media/scenery.png", &background.width, &background.height, &background.channels, STBI_default);
+        if(background.pixels == nullptr)
+            LOG(ERROR) << "Unable to Load Image ";
+
+        auto& tex = background.tex;
+        glCreateTextures(GL_TEXTURE_2D,1, &tex);
+        glTextureParameterf(tex, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+        glTextureParameterf(tex, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+        glTextureParameterf(tex, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTextureParameterf(tex, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTextureStorage2D(tex, 1, GL_RGBA8, background.width, background.height);
+        glTextureSubImage2D(tex, 0, 0, 0, background.width, background.height, (background.channels == 3) ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, background.pixels);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        stbi_image_free(background.pixels);
+        background.image = nk_image_id((int) tex);
+    }
+    //
+
+
+
     // if the engine doesn't have any paths to carnivores 2 or ice age, prompt for path
     if( assetPaths.empty() ) {
 
@@ -115,11 +139,14 @@ void Kernel::drawMainMenu(nk_context *ctx) {
     auto config = &app()->config;
 
 
-    if(nk_begin(ctx, "", nk_rect(0, 0, config->width, config->height), NK_WINDOW_BACKGROUND|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_NOT_INTERACTIVE)) {
-        nk_layout_row_static(ctx, config->height, config->width, 1);
 
-        nk_label(ctx, "BG Image Goes Here", NK_TEXT_CENTERED);
-    } nk_end(ctx);
+    if(nk_begin(ctx, "", nk_rect(0,0,config->width, config->height), NK_WINDOW_BACKGROUND|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_NO_INPUT)) {
+
+        // Draw the image
+        nk_layout_row_dynamic(ctx, (float) config->height, 1);
+        nk_image(ctx, background.image);
+    }
+    nk_end(ctx);
 
     if( nk_begin(ctx, "Profile Bar", nk_rect(0, 0, config->width, 50), NK_WINDOW_BORDER|NK_WINDOW_NO_SCROLLBAR) ) {
 
@@ -180,6 +207,15 @@ void Kernel::drawMainMenu(nk_context *ctx) {
 
 void Kernel::drawHuntSetup(nk_context *ctx) {
     auto config = &app()->config;
+
+    if(nk_begin(ctx, "", nk_rect(0,0,config->width, config->height), NK_WINDOW_BACKGROUND|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_NO_INPUT)) {
+
+        // Draw the image
+        nk_layout_row_dynamic(ctx, (float) config->height, 1);
+        nk_image(ctx, background.image);
+    }
+    nk_end(ctx);
+
 
     if(nk_begin(ctx, "Locations", nk_rect(50, 50, 300, 500), NK_WINDOW_TITLE|NK_WINDOW_BORDER|NK_WINDOW_MOVABLE)) {
         nk_layout_row_dynamic(ctx, 30, 1);
@@ -436,6 +472,14 @@ void Kernel::drawProfileSelect(nk_context *ctx) {
 
     int width = 300,
         height = 500;
+
+    if(nk_begin(ctx, "", nk_rect(0,0,config->width, config->height), NK_WINDOW_BACKGROUND|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_NO_INPUT)) {
+
+        // Draw the image
+        nk_layout_row_dynamic(ctx, (float) config->height, 1);
+        nk_image(ctx, background.image);
+    }
+    nk_end(ctx);
 
     if(nk_begin(ctx, "Profile Select", nk_rect( config->width / 2 - width / 2, config->height / 2 - height / 2, width, height ), NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_BORDER|NK_WINDOW_TITLE)) {
 

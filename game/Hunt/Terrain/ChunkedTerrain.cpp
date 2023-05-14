@@ -26,23 +26,23 @@ ChunkedTerrain::ChunkedTerrain(OCARN2::Map *map, OCARN2::Rsc* rsc, int chunksPer
             chunk.data = data;
             chunk.vertexCount = data.size();
 
-            glGenVertexArrays(1, &chunk.vaoId);
-            glBindVertexArray(chunk.vaoId);
-            {
-                glGenBuffers(1, &chunk.bufferId);
-                glBindBuffer(GL_ARRAY_BUFFER, chunk.bufferId);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(TerrainVertex) * data.size(), &data[0], GL_STATIC_DRAW);
+            glCreateVertexArrays(1, &chunk.vaoId);
+            glCreateBuffers(1, &chunk.bufferId);
 
-                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), (void*) offsetof(TerrainVertex, position));
-                glEnableVertexAttribArray(0);
+            glNamedBufferData(chunk.bufferId, sizeof(TerrainVertex) * data.size(), &data[0], GL_STATIC_DRAW);
+            glVertexArrayVertexBuffer(chunk.vaoId, 0, chunk.bufferId, 0, sizeof(TerrainVertex));
 
-                glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), (void*) offsetof(TerrainVertex, texture));
-                glEnableVertexAttribArray(1);
+            glEnableVertexArrayAttrib(chunk.vaoId, 0);
+            glVertexArrayAttribFormat(chunk.vaoId, 0, 3, GL_FLOAT, GL_FALSE, offsetof(TerrainVertex, position));
+            glVertexArrayAttribBinding(chunk.vaoId, 0, 0);
 
-                glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), (void*) offsetof(TerrainVertex, normal));
-                glEnableVertexAttribArray(2);
-            }
-            glBindVertexArray(0);
+            glEnableVertexArrayAttrib(chunk.vaoId, 1);
+            glVertexArrayAttribFormat(chunk.vaoId, 1, 3, GL_FLOAT, GL_FALSE, offsetof(TerrainVertex, texture));
+            glVertexArrayAttribBinding(chunk.vaoId, 1, 0);
+
+            glEnableVertexArrayAttrib(chunk.vaoId, 2);
+            glVertexArrayAttribFormat(chunk.vaoId, 2, 3, GL_FLOAT, GL_FALSE, offsetof(TerrainVertex, normal));
+            glVertexArrayAttribBinding(chunk.vaoId, 2, 0);
         }
     }
 
@@ -78,8 +78,7 @@ void ChunkedTerrain::draw(int chunkX, int chunkZ) {
 
     shader->setInt("terrain", 0);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, textureId);
+    glBindTextures(0, 1, &textureId);
 
     if(drawAll) {
         for(auto& row: chunks)
@@ -107,20 +106,18 @@ void ChunkedTerrain::draw(int chunkX, int chunkZ) {
 
 void ChunkedTerrain::UploadTexture() {
     GLsizei width = 128, height = 128, layerCount = rsc->textures.size(), mipLevelCount = 1;
-    glGenTextures(1, &textureId);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, textureId);
-    glTexStorage3D(GL_TEXTURE_2D_ARRAY, mipLevelCount, GL_RGB5_A1, width, height, layerCount);
+
+    glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &textureId);
+    glTextureStorage3D(textureId, mipLevelCount, GL_RGB5_A1, width, height, layerCount);
 
     // load each texture into a layer on the 2d array
     for(auto i=0; i < rsc->textures.size(); i++)
-        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, width, height, 1, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, rsc->textures[i].data);
+        glTextureSubImage3D(textureId, 0, 0, 0, i, width, height, 1, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, rsc->textures[i].data);
 
-    glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
-
-    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+    glTextureParameteri(textureId,GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTextureParameteri(textureId,GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTextureParameteri(textureId,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+    glTextureParameteri(textureId,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 }
 
 

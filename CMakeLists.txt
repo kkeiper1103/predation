@@ -14,9 +14,6 @@ set(SOURCES
         src/utils/Timer.cpp
         src/utils/convert_rgb5_a1_to_grayscale.cpp
 
-        src/graphics/gl_compat.h
-        src/graphics/gl_compat_textures.h
-
         src/graphics/Framebuffer.cpp
         src/graphics/Mesh.cpp
         src/graphics/Model.cpp

@@ -9,29 +9,6 @@
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
-#include <stb/stb_image.h>
-#include <SDL_timer.h>
-
-
-template <typename T>
-void BufferAttribute(int location, unsigned int numComponents, const std::vector<T>& data) {
-    if( data.size() % numComponents != 0 ) {
-        LOG(ERROR) << "Buffer Size is not a Multiple of NumComponents!";
-        return;
-    }
-
-    int currentlyBoundBuffer = 0;
-    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &currentlyBoundBuffer);
-
-    if( currentlyBoundBuffer == 0 ) {
-        LOG(ERROR) << "No Buffer Bound Currently! Can't BufferAttribute";
-        return;
-    }
-
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(T) * data.size(), &data[0]);
-    glVertexAttribPointer(location, numComponents, GL_FLOAT, GL_FALSE, sizeof(T) * numComponents, 0);
-    glEnableVertexAttribArray(location);
-};
 
 
 void Skybox::update(double dt) {
@@ -42,70 +19,67 @@ void Skybox::update(double dt) {
 }
 
 void Skybox::draw() {
+    shader->use();
+    shader->setMat4("model", model);
     glDepthMask(GL_FALSE);
     glDepthFunc(GL_LEQUAL);
 
-    shader->use();
-    shader->setMat4("model", model);
-
     // diffuse map
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureId);
+    glBindTextures(0, 1, &textureId);
 
     glBindVertexArray(vaoId);
     glDrawElements(GL_TRIANGLES, numElements, GL_UNSIGNED_INT, 0);
-
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     glDepthMask(GL_TRUE);
 }
 
 Skybox::Skybox(GLushort *texture) {
-    glGenVertexArrays(1, &vaoId);
-    glGenBuffers(4, buffers);
-    glGenTextures(1, &textureId);
-
+    glCreateVertexArrays(1, &vaoId);
+    glCreateBuffers(4, buffers);
+    glCreateTextures(GL_TEXTURE_2D, 1, &textureId);
 
     auto vertices = generateVertices();
     numElements = vertices.indices.size();
 
-    glBindVertexArray(vaoId);
-    {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[0]);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * vertices.indices.size(), &vertices.indices[0], GL_STATIC_DRAW);
 
+    glNamedBufferData(buffers[0], sizeof(GLuint) * vertices.indices.size(), vertices.indices.data(), GL_STATIC_DRAW);
+    glVertexArrayElementBuffer(vaoId, buffers[0]);
 
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.positions.size(), &vertices.positions[0], GL_STATIC_DRAW);
-        BufferAttribute<float>(0, 3, vertices.positions);
+    glNamedBufferData(buffers[1], sizeof(GLfloat) * vertices.positions.size(), vertices.positions.data(), GL_STATIC_DRAW);
+    glNamedBufferData(buffers[2], sizeof(GLfloat) * vertices.normals.size(), vertices.normals.data(), GL_STATIC_DRAW);
+    glNamedBufferData(buffers[3], sizeof(GLfloat) * vertices.uvs.size(), vertices.uvs.data(), GL_STATIC_DRAW);
 
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.normals.size(), &vertices.normals[0], GL_STATIC_DRAW);
-        BufferAttribute<float>(1, 3, vertices.normals);
+    glVertexArrayVertexBuffer(vaoId, 0, buffers[1], 0, sizeof(GLfloat) * 3);
+    glVertexArrayVertexBuffer(vaoId, 1, buffers[2], 0, sizeof(GLfloat) * 3);
+    glVertexArrayVertexBuffer(vaoId, 2, buffers[3], 0, sizeof(GLfloat) * 2);
 
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.uvs.size(), &vertices.uvs[0], GL_STATIC_DRAW);
-        BufferAttribute<float>(2, 2, vertices.uvs);
-    }
-    glBindVertexArray(0);
+    glEnableVertexArrayAttrib(vaoId, 0);
+    glVertexArrayAttribFormat(vaoId, 0, 3, GL_FLOAT, GL_FALSE, 0);
+    glVertexArrayAttribBinding(vaoId, 0, 0);
 
+    glEnableVertexArrayAttrib(vaoId, 1);
+    glVertexArrayAttribFormat(vaoId, 1, 3, GL_FLOAT, GL_FALSE, 0);
+    glVertexArrayAttribBinding(vaoId, 1, 1);
+
+    glEnableVertexArrayAttrib(vaoId, 2);
+    glVertexArrayAttribFormat(vaoId, 2, 2, GL_FLOAT, GL_FALSE, 0);
+    glVertexArrayAttribBinding(vaoId, 2, 2);
 
     // create shader
     shader = Shader::FromFiles("resources/shaders/Skybox.vert", "resources/shaders/Skybox.frag");
 
-    // load texture
-    glBindTexture(GL_TEXTURE_2D, textureId);
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // upscale texture
+    auto upscaled = upscaleNearestNeighbor(texture);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, width, height, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, texture);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    glBindTexture(GL_TEXTURE_2D, 0);
+    // load texture
+    glTextureParameteri(textureId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTextureParameteri(textureId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTextureParameteri(textureId, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(textureId, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTextureStorage2D(textureId, 1, GL_RGB5_A1, width, height);
+    glTextureSubImage2D(textureId, 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, texture);
+    glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 Skybox::~Skybox() {

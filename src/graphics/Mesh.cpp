@@ -11,9 +11,8 @@
  * @param indices
  */
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLushort> indices) : vertices(std::move(vertices)), indices(std::move(indices)) {
-    glGenVertexArrays(1, &vaoId);
-    glGenBuffers(1, &vboId);
-    glGenBuffers(1, &eboId);
+    glGenVertexArrays(1, &id);
+    glGenBuffers(1, &bufferId);
 
     setData(this->vertices, this->indices);
 
@@ -24,10 +23,9 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLushort> indices) : vertic
  * delete the gl resources when the object goes out of scope
  */
 Mesh::~Mesh() {
-    glDeleteBuffers(1, &vboId);
-    glDeleteBuffers(1, &eboId);
+    glDeleteBuffers(1, &bufferId);
 
-    glDeleteVertexArrays(1, &vaoId);
+    glDeleteVertexArrays(1, &id);
 }
 
 /**
@@ -55,9 +53,9 @@ void Mesh::draw() {
     }
 
     // bind the mesh's vertex array object
-    glBindVertexArray(vaoId);
+    glBindVertexArray(id);
     { // these braces aren't necessary, but I find that I like the conceptual information they provide, since they show that glDrawElements is supposed to happen only while the vao is bound
-        glDrawElements(drawMode, indices.size(), GL_UNSIGNED_SHORT, 0);
+        glDrawArrays(drawMode, 0, vertices.size());
     }
     glBindVertexArray(0); // unbind the vao so contamination doesn't happen
 
@@ -70,7 +68,7 @@ void Mesh::setData(std::vector<Vertex> vertices, std::vector<idx_t> indices) {
     this->vertices = std::move(vertices);
     this->indices = std::move(indices);
 
-    glBindVertexArray(vaoId);
+    glBindVertexArray(id);
     { // see note in render method
 
         /**
@@ -78,33 +76,11 @@ void Mesh::setData(std::vector<Vertex> vertices, std::vector<idx_t> indices) {
          * one thing of note is that we have to use the fully qualified member variable, not the local variable specifically because we called std::move on it earlier
          * vertices is empty; this->vertices now holds what vertices used to
          */
-        glBindBuffer(GL_ARRAY_BUFFER, vboId);
+        glBindBuffer(GL_ARRAY_BUFFER, bufferId);
         glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this->vertices.size(), &this->vertices[0], GL_STATIC_DRAW);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboId);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(idx_t) * this->indices.size(), &this->indices[0], GL_STATIC_DRAW);
-
-        /**
-         * This is a neat little trick to improve extensibility
-         * offsetof is a macro that will get the memory address offset of the named property of the first parameter
-         * so offsetof(Vertex, position) will return a pointer to where position is stored within Vertex
-         * This means we can move the properties within the struct around and this code won't break
-         *
-         * It specifically removes the need for mental math like (sizeof(float) * floatsPerVertex)
-         *
-         * All you need to remember is that:
-         *
-         * attribute in location 0 has 3 components (floats)
-         * attribute in location 1 has 4 components (floats)
-         * attribute in location 2 has 2 components (floats)
-         * attribute in location 3 has 3 components (floats)
-         *
-         */
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position));
         glEnableVertexAttribArray(0);
-
-        /*glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, normal));
-        glEnableVertexAttribArray(1);*/
 
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, color));
         glEnableVertexAttribArray(2);

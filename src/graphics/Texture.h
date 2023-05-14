@@ -13,8 +13,6 @@
 #include <stb/stb_image.h>
 #include <easyloggingpp/easylogging++.h>
 
-#include "gl_compat.h"
-
 class Texture {
 protected:
     GLuint id;

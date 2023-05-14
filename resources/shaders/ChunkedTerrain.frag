@@ -20,5 +20,5 @@ void main() {
     // generates a fog. keep in sync with Mesh.frag
     // @todo make include with this stuff or something
     vec4 fogColor = vec4(.7, .7, .7, .7);
-    FragColor = mix(fogColor, FragColor, visibility);
+    // FragColor = mix(fogColor, FragColor, visibility);
 }

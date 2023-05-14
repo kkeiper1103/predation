@@ -15,4 +15,5 @@ void main()
 {
     // animate the texture in the x direction
     FragColor = texture(skybox, fTexture);
+    // FragColor = vec4(1, .4, .4, 1);
 }

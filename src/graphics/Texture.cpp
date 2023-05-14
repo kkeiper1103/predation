@@ -25,6 +25,7 @@ Texture::Texture(unsigned char *data, int width, int height, GLint internalForma
 data(data), width(width), height(height), internalFormat(internalFormat), format(format), type(type) {
     glCreateTextures(GL_TEXTURE_2D, 1, &id);
 
+    glTextureStorage2D(id, 1, internalFormat, width, height);
     upload();
 }
 
@@ -37,7 +38,7 @@ void Texture::upload() {
     glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // this moves the pixels onto the gpu using the parameters defined
-    glTextureImage2D(id, level, internalFormat, width, height, border, format, type, data);
+    glTextureSubImage2D(id, level, 0, 0, width, height, format, type, data);
 
     // without this call, textures will be blank because gl is expecting to find mipmaps
     glGenerateMipmap(GL_TEXTURE_2D);

@@ -11,8 +11,6 @@
 #include <vector>
 #include <memory>
 
-#include "gl_compat.h"
-
 #include "Vertex.h"
 
 #include "Shader.h"
@@ -28,9 +26,8 @@ public:
     std::shared_ptr<Shader> shader;
 
 protected:
-    GLuint vaoId = 0;
-    GLuint vboId = 0;
-    GLuint eboId = 0;
+    GLuint id = 0;
+    GLuint bufferId = 0;
 
     std::vector<Vertex> vertices;
     std::vector<idx_t> indices;

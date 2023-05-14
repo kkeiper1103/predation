@@ -8,6 +8,8 @@
 #include <string>
 #include <map>
 
+#include <stb/stb_image.h>
+
 #include "HuntConfig.h"
 #include "GameSettings.h"
 #include "AppLogic.h"
@@ -29,6 +31,14 @@ enum GameState {
 };
 
 class Kernel : public AppLogic {
+    struct {
+        unsigned char* pixels = nullptr;
+        int width, height, channels;
+
+        GLuint tex;
+        struct nk_image image;
+    } background;
+
     std::vector<std::string> assetPaths;
 
     // available areas

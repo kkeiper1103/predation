@@ -48,18 +48,10 @@ public:
         shader->setMat4("model", model);
 
         // diffuse map
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, textures[0]);
-
-        // normal map
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, textures[1]);
+        glBindTextures(0, 2, textures);
 
         glBindVertexArray(vaoId);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-
-        glBindVertexArray(0);
-        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void draw() {
@@ -69,18 +61,10 @@ public:
         shader->setInt("specular", 1);
 
         // diffuse map
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, textures[0]);
-
-        // normal map
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, textures[1]);
-
+        glBindTextures(0, 2, textures);
         glBindVertexArray(vaoId);
-        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
-        glBindVertexArray(0);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     }
 };
 

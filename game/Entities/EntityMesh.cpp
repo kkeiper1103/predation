@@ -19,9 +19,9 @@ struct EntityMeshVertex {
 EntityMesh::EntityMesh(const OCARN2::Mesh *const data) {
     strcpy(name, data->name);
 
-    glGenVertexArrays(1, &vaoId);
-    glGenBuffers(1, &vboId);
-    glGenTextures(2, textures);
+    glCreateVertexArrays(1, &vaoId);
+    glCreateBuffers(1, &vboId);
+    glCreateTextures(GL_TEXTURE_2D,2, textures);
 
     std::vector<EntityMeshVertex> vertices;
     vertices.reserve(data->numFaces * 3);
@@ -38,18 +38,16 @@ EntityMesh::EntityMesh(const OCARN2::Mesh *const data) {
     vertexCount = data->numFaces * 3;
 
 
-    glBindVertexArray(vaoId);
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(EntityMeshVertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+    glNamedBufferData(vboId, sizeof(EntityMeshVertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+    glVertexArrayVertexBuffer(vaoId, 0, vboId, 0, sizeof(EntityMeshVertex));
 
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(EntityMeshVertex), (void*) offsetof(EntityMeshVertex, position));
+    glEnableVertexArrayAttrib(vaoId, 0);
+    glVertexArrayAttribFormat(vaoId, 0, 3, GL_FLOAT, GL_FALSE, offsetof(EntityMeshVertex, position));
+    glVertexArrayAttribBinding(vaoId, 0, 0);
 
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(EntityMeshVertex), (void*) offsetof(EntityMeshVertex, textureCoords));
-    }
-    glBindVertexArray(0);
+    glEnableVertexArrayAttrib(vaoId, 1);
+    glVertexArrayAttribFormat(vaoId, 1, 2, GL_FLOAT, GL_FALSE, offsetof(EntityMeshVertex, textureCoords));
+    glVertexArrayAttribBinding(vaoId, 1, 0);
 
     // add the alpha channel, so we don't get black on the edge of the trees and stuff
     GLushort texture[256 * 256];
@@ -70,34 +68,30 @@ EntityMesh::EntityMesh(const OCARN2::Mesh *const data) {
     }
 
     // now, bind textures
-    // diffuse texture
-    glBindTexture(GL_TEXTURE_2D, textures[0]);
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    // diffuse (normal skin color) texture
+    glTextureParameteri(textures[0], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTextureParameteri(textures[0], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTextureParameteri(textures[0], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(textures[0], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(textures[0], GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, 256, 256, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, texture);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    // no need for extraneous reset bind texture call
+    glTextureStorage2D(textures[0], 1, GL_RGB5_A1, 256, 256);
+    glTextureSubImage2D(textures[0], 0, 0, 0, 256, 256, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, texture);
+    glGenerateMipmap(GL_TEXTURE_2D);
 
     // normal texture
     auto specularMap = to_grayscale(texture, 256, 256);
-    glBindTexture(GL_TEXTURE_2D, textures[1]);
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, 256, 256, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &specularMap[0]);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glTextureParameteri(textures[1], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTextureParameteri(textures[1], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTextureParameteri(textures[1], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(textures[1], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(textures[1], GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    glTextureStorage2D(textures[1], 1, GL_RGB5_A1, 256, 256);
+    glTextureSubImage2D(textures[1], 0, 0, 0, 256, 256, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &specularMap[0]);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
 
     // lastly create shader
     if(_shader == nullptr)

@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 find_package(OpenGL REQUIRED)
 add_subdirectory(vendor/SDL2)
+add_subdirectory(vendor/physfs)
 
 set(SOURCES
 
@@ -49,8 +50,8 @@ set(SOURCES
 
 add_executable(${PROJECT_NAME} predation.cpp ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL SDL2::SDL2)
-target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include vendor/glm src/ game/ ./)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL SDL2::SDL2 physfs)
+target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm src/ game/ ./)
 
 
 add_executable(editor editor.cpp ${SOURCES})
@@ -71,5 +72,14 @@ add_custom_command(
         $<TARGET_FILE_DIR:${PROJECT_NAME}>
         COMMENT "Copying SDL2 DLL to binary directory"
 )
+add_custom_command(
+        TARGET ${PROJECT_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:PhysFS::PhysFS>
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMENT "Copying PhysFS DLL to binary directory"
+)
 
 add_custom_target(copy_sdl2_dll DEPENDS ${PROJECT_NAME})
+add_custom_target(copy_physfs_dell DEPENDS ${PROJECT_NAME})

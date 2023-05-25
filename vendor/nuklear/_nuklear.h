@@ -20194,7 +20194,7 @@ int ret = 0;
 NK_ASSERT(ctx);
 NK_ASSERT(name);
 NK_ASSERT(title);
-NK_ASSERT(ctx->style.font && ctx->style.font->width && "if this triggers you forgot to add a font");
+  NK_ASSERT(ctx->style.font && ctx->style.font->width && "if this triggers you forgot to add a font");
 NK_ASSERT(!ctx->current && "if this triggers you missed a `nk_end` call");
 if (!ctx || ctx->current || !title || !name)
 return 0;

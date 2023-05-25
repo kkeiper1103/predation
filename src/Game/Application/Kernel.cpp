@@ -9,6 +9,8 @@
 
 #include "Application.h"
 
+#include <tinyfiledialogs/tinyfiledialogs.h>
+
 Kernel::Kernel() {
     LoadGameSettings();
     LoadAssetPaths();
@@ -98,6 +100,18 @@ void Kernel::gui(nk_context* ctx) {
             config->width / 2 - w / 2, config->height / 2 - h / 2,
             w, h
         ), NK_WINDOW_TITLE|NK_WINDOW_BORDER|NK_WINDOW_NO_SCROLLBAR)) {
+
+            nk_layout_row_dynamic(ctx, 35, 1);
+            if( nk_button_label(ctx, "Choose Directory") ) {
+                std::vector<const char*> filters {};
+                const char* path = tinyfd_selectFolderDialog("HUNTDAT Location", "");
+
+                if(path) {
+                    fprintf(stdout, "Directory: %s\n", path);
+                    assetPaths.emplace_back(path);
+                }
+            }
+
             nk_layout_row_begin(ctx, NK_DYNAMIC, 35, 2);
 
             nk_layout_row_push(ctx, .3);

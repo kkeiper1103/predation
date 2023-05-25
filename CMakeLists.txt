@@ -55,8 +55,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include ve
 
 
 add_executable(editor editor.cpp ${SOURCES})
-target_link_libraries(editor PRIVATE OpenGL::GL SDL2::SDL2)
-target_include_directories(editor PRIVATE vendor vendor/glad/include vendor/glm src/ game/ ./)
+target_link_libraries(editor PRIVATE OpenGL::GL SDL2::SDL2 physfs)
+target_include_directories(editor PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm src/ game/ ./)
 
 
 # render tests

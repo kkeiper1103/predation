@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
     Kernel logic;
 
     PHYSFS_init(argv[0]);
-    PHYSFS_setSaneConfig("Predation", "Predation++", "zip", 1, 1);
+    PHYSFS_setSaneConfig("Predation", "Game", "zip", 1, 1);
 
     app()->configure({
         1920,

@@ -20,6 +20,9 @@
 struct MapSettings {
     unsigned int seed = 0;
 
+    std::string currentMap;
+    std::string currentRsc;
+
     float elevation = .5;
     float temperature = .5;
     float vegetation = .5;
@@ -104,10 +107,22 @@ int main(int argc, char* argv[]) {
         static int paneOffset = 10;
 
         // left pane
-        if(nk_begin(nkContext, "Left Pane", nk_rect(paneOffset, paneOffset, paneWidth, h - paneOffset * 2), NK_WINDOW_BORDER | NK_WINDOW_TITLE | NK_WINDOW_MINIMIZABLE)) {
+        if(nk_begin(nkContext, "Left Pane", nk_rect(paneOffset, paneOffset, paneWidth, h - paneOffset * 2),NK_WINDOW_BORDER | NK_WINDOW_TITLE | NK_WINDOW_MINIMIZABLE)) {
             nk_layout_row_dynamic(nkContext, 35, 1);
 
+            char buffer[255];
 
+            sprintf(buffer, "File: %s", settings.currentMap.c_str());
+            nk_label(nkContext, buffer, NK_TEXT_ALIGN_LEFT);
+            ui_file_dialog(nkContext, "Open Map", {"*.map", "*.MAP"}, [&](const char* filename) {
+                settings.currentMap = filename;
+            });
+
+            sprintf(buffer, "File: %s", settings.currentRsc.c_str());
+            nk_label(nkContext, buffer, NK_TEXT_ALIGN_LEFT);
+            ui_file_dialog(nkContext, "Open Resources File", {"*.rsc", "*.RSC"}, [&](const char* filename) {
+                settings.currentRsc = filename;
+            });
         }
         nk_end(nkContext);
 

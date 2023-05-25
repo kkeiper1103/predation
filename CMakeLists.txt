@@ -14,11 +14,11 @@ set(COMMON_SOURCES
         src/Common/utils/Timer.cpp
         src/Common/utils/convert_rgb5_a1_to_grayscale.cpp
 
-        src/Common/graphics/Framebuffer.cpp
-        src/Common/graphics/Mesh.cpp
-        src/Common/graphics/Model.cpp
+        #src/Common/graphics/Framebuffer.cpp
+        #src/Common/graphics/Mesh.cpp
+        #src/Common/graphics/Model.cpp
         src/Common/graphics/Shader.cpp
-        src/Common/graphics/Texture.cpp
+        #src/Common/graphics/Texture.cpp
         src/Common/graphics/UniformBuffer.cpp
         src/Common/graphics/Transform.h
 
@@ -28,6 +28,7 @@ set(COMMON_SOURCES
         vendor/nuklear/nuklear.c
         vendor/easyloggingpp/easylogging++.cc
         vendor/glad/src/glad.c
+        vendor/tinyfiledialogs/tinyfiledialogs.c
         )
 
 set(GAME_SOURCES
@@ -51,7 +52,7 @@ set(GAME_SOURCES
 
 set(EDITOR_SOURCES
         src/MapEditor/UI/ui.cpp src/MapEditor/UI/ui.h
-        )
+        src/MapEditor/UI/FileBrowser.cpp src/MapEditor/UI/FileBrowser.h)
 
 ###
 # Build Common library to be compiled / linked into the Game and MapEditor applications

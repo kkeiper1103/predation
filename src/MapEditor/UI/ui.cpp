@@ -70,3 +70,11 @@ unsigned int fnv1aHash(const std::string& str) {
 
     return hash;
 }
+
+void ui_file_dialog(nk_context *ctx, const char *label, const std::vector<const char*>& filters, const std::function<void(const char *)> &onSelect) {
+    ui_button_widget(ctx, label, [&]() {
+        char const* res = tinyfd_openFileDialog(label, "", filters.size(), filters.data(), nullptr, 0);
+
+        if(res != nullptr) onSelect(res);
+    });
+}

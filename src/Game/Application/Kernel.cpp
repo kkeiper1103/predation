@@ -2,6 +2,7 @@
 // Created by kkeiper1103 on 12/17/22.
 //
 
+#define STB_IMAGE_IMPLEMENTATION
 #include "Kernel.h"
 
 #include <memory>

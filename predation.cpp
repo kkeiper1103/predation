@@ -9,6 +9,7 @@ INITIALIZE_EASYLOGGINGPP
 #define SDL_MAIN_HANDLED
 #include "Application.h"
 #include "Application/Kernel.h"
+#include "Game.h"
 
 #include <physfs.h>
 

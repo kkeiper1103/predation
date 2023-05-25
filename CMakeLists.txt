@@ -29,7 +29,7 @@ set(COMMON_SOURCES
         vendor/easyloggingpp/easylogging++.cc
         vendor/glad/src/glad.c
         vendor/tinyfiledialogs/tinyfiledialogs.c
-        )
+        src/Common/App.cpp src/Common/App.h)
 
 set(GAME_SOURCES
         src/Game/Application/Kernel.cpp
@@ -48,11 +48,10 @@ set(GAME_SOURCES
 
         src/Game/Hunt/Terrain/RandomTerrain.cpp
         src/Game/Hunt/Terrain/ITerrain.h
-        )
+        src/Game/Game.cpp src/Game/Game.h)
 
 set(EDITOR_SOURCES
-        src/MapEditor/UI/ui.cpp src/MapEditor/UI/ui.h
-        src/MapEditor/UI/FileBrowser.cpp src/MapEditor/UI/FileBrowser.h)
+        src/MapEditor/UI/ui.cpp src/MapEditor/UI/ui.h src/MapEditor/Data/MapSettings.h)
 
 ###
 # Build Common library to be compiled / linked into the Game and MapEditor applications

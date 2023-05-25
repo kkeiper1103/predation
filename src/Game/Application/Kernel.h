@@ -24,12 +24,14 @@
 #include "predation.h"
 
 enum GameState {
-    GS_CHOOSEPROFILE,
+    GS_CHOOSEPROFILE = 0,
     GS_MAINMENU,
     GS_HUNTSETUP,
     GS_HUNTING,
     GS_HUNTRESULTS,
-    GS_SETTINGS
+    GS_SETTINGS,
+
+    NUM_STATES
 };
 
 class Kernel : public AppLogic {
@@ -56,7 +58,7 @@ class Kernel : public AppLogic {
 
 
 
-    GameState state = GS_CHOOSEPROFILE;
+    GameState state = GS_MAINMENU;
     HuntConfig huntConfig;
 
     friend class Hunt;

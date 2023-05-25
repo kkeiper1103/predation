@@ -25,7 +25,8 @@ Kernel::Kernel() {
         LoadAvailableWeapons(path, settings.prices.weapons, settings.weapons);
     }
 
-
+    if(profiles.empty())
+        state = GS_CHOOSEPROFILE;
 }
 
 Kernel::~Kernel() {

@@ -53,39 +53,56 @@ set(EDITOR_SOURCES
         src/MapEditor/UI/ui.cpp src/MapEditor/UI/ui.h
         )
 
+###
+# Build Common library to be compiled / linked into the Game and MapEditor applications
+#
+#
+###
 add_library(predation-common STATIC ${COMMON_SOURCES})
 add_library(Predation::Common ALIAS predation-common)
 target_link_libraries(predation-common PRIVATE OpenGL::GL SDL2::SDL2 physfs)
 target_include_directories(predation-common PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm src/Common ./)
 
 
-
+###
+# Build the main Game application that replicates Carnivores 2/IceAge
+#
+#
+###
 add_executable(${PROJECT_NAME} predation.cpp ${GAME_SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL SDL2::SDL2 physfs Predation::Common)
 target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm src/Common src/Game ./)
 
-
+###
+# Build the experimental MapEditor application that generates random maps for OCARN2
+#
+#
+###
 add_executable(editor editor.cpp ${EDITOR_SOURCES})
 target_link_libraries(editor PRIVATE OpenGL::GL SDL2::SDL2 physfs Predation::Common)
 target_include_directories(editor PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm src/ src/Common ./)
 
-
+###
+# Copies the dlls required for predation.exe into the bin dir.
+#
+#
+###
 add_custom_command(
-        TARGET ${PROJECT_NAME}
+        TARGET predation-common
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL2::SDL2>
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        $<TARGET_FILE_DIR:predation-common>
         COMMENT "Copying SDL2 DLL to binary directory"
 )
 add_custom_command(
-        TARGET ${PROJECT_NAME}
+        TARGET predation-common
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:PhysFS::PhysFS>
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        $<TARGET_FILE_DIR:predation-common>
         COMMENT "Copying PhysFS DLL to binary directory"
 )
 
-add_custom_target(copy_sdl2_dll DEPENDS ${PROJECT_NAME})
-add_custom_target(copy_physfs_dell DEPENDS ${PROJECT_NAME})
+add_custom_target(copy_sdl2_dll DEPENDS Predation::Common)
+add_custom_target(copy_physfs_dell DEPENDS Predation::Common)

@@ -4,7 +4,6 @@
 
 #include "ui.h"
 
-
 char buffer[255];
 /**
  *
@@ -71,10 +70,28 @@ unsigned int fnv1aHash(const std::string& str) {
     return hash;
 }
 
-void ui_file_dialog(nk_context *ctx, const char *label, const std::vector<const char*>& filters, const std::function<void(const char *)> &onSelect) {
+void ui_file_dialog(nk_context *ctx, const char *label, const std::vector<nfdfilteritem_t>& filters, const std::function<void(const char *)> &onSelect) {
     ui_button_widget(ctx, label, [&]() {
-        char const* res = tinyfd_openFileDialog(label, "", filters.size(), filters.data(), nullptr, 0);
+        /*char const* res = tinyfd_openFileDialog(label, "", filters.size(), filters.data(), nullptr, 0);
 
-        if(res != nullptr) onSelect(res);
+        if(res != nullptr) onSelect(res);*/
+
+        nfdchar_t *outPath;
+        if( NFD_OKAY == NFD_OpenDialog(&outPath, filters.data(), filters.size(), nullptr) ) {
+            onSelect(outPath);
+
+            NFD_FreePath(outPath);
+        }
+    });
+}
+
+void ui_folder_dialog(nk_context *ctx, const char *label, const std::function<void(const char *)> &onSelect) {
+    ui_button_widget(ctx, label, [&]() {
+        nfdchar_t *outPath;
+        if (NFD_OKAY == NFD_PickFolder(&outPath, "")) {
+            onSelect(outPath);
+
+            NFD_FreePath(outPath);
+        }
     });
 }

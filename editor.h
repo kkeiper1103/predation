@@ -9,6 +9,7 @@
 
 #include "Common/App.h"
 #include "MapEditor/Data/MapSettings.h"
+#include "graphics/Mesh.h"
 
 class MapEditor : public App {
 public:
@@ -34,14 +35,41 @@ protected:
 
             sprintf(buffer, "File: %s", settings.currentMap.c_str());
             nk_label(ui, buffer, NK_TEXT_ALIGN_LEFT);
-            ui_file_dialog(ui, "Open Map", {"*.map", "*.MAP"}, [&](const char* filename) {
+            ui_file_dialog(ui, "Open Map", {{"Map", "map,MAP"}}, [&](const char* filename) {
                 settings.currentMap = filename;
             });
 
             sprintf(buffer, "File: %s", settings.currentRsc.c_str());
             nk_label(ui, buffer, NK_TEXT_ALIGN_LEFT);
-            ui_file_dialog(ui, "Open Resources File", {"*.rsc", "*.RSC"}, [&](const char* filename) {
+            ui_file_dialog(ui, "Open Resources File", {{"Resources", "rsc,RSC"}}, [&](const char* filename) {
                 settings.currentRsc = filename;
+            });
+
+            //
+            nk_label(ui, "Open CAR/3DF File", NK_TEXT_ALIGN_LEFT);
+            ui_file_dialog(ui, "Open CAR/3DF File", {{"Model", "car,CAR,3df,3DF"}}, [&](const char* filename) {
+                Mesh mesh(filename);
+
+                mesh.Debug();
+            });
+
+            //
+            nk_label(ui, "Open All Models in Folder", NK_TEXT_ALIGN_LEFT);
+            ui_folder_dialog(ui, "Select Folder", [&](const char* path) {
+                fprintf(stdout, "Searching %s\n", path);
+                PHYSFS_mount(path, NULL, 1);
+                auto result = PHYSFS_enumerateFiles(path);
+
+                if (*result == NULL) {
+                    fprintf(stdout, "Failed to enumerate files: %s\n", PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+                }
+
+                for(char** file = result; *file != NULL; file++) {
+                    fprintf(stdout, "Model: %s\n", *file);
+                }
+
+                PHYSFS_freeList(result);
+                PHYSFS_unmount(path);
             });
         }
         nk_end(ui);

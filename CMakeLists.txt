@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 find_package(OpenGL REQUIRED)
 add_subdirectory(vendor/SDL2)
 add_subdirectory(vendor/physfs)
+add_subdirectory(vendor/nativefiledialog-extended)
 
 set(COMMON_SOURCES
         src/Common/Application.cpp
@@ -15,7 +16,7 @@ set(COMMON_SOURCES
         src/Common/utils/convert_rgb5_a1_to_grayscale.cpp
 
         #src/Common/graphics/Framebuffer.cpp
-        #src/Common/graphics/Mesh.cpp
+        src/Common/graphics/Mesh.cpp
         #src/Common/graphics/Model.cpp
         src/Common/graphics/Shader.cpp
         #src/Common/graphics/Texture.cpp
@@ -29,6 +30,7 @@ set(COMMON_SOURCES
         vendor/easyloggingpp/easylogging++.cc
         vendor/glad/src/glad.c
         vendor/tinyfiledialogs/tinyfiledialogs.c
+
         src/Common/App.cpp src/Common/App.h)
 
 set(GAME_SOURCES
@@ -60,8 +62,8 @@ set(EDITOR_SOURCES
 ###
 add_library(predation-common STATIC ${COMMON_SOURCES})
 add_library(Predation::Common ALIAS predation-common)
-target_link_libraries(predation-common PRIVATE OpenGL::GL SDL2::SDL2 physfs)
-target_include_directories(predation-common PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm src/Common ./)
+target_link_libraries(predation-common PRIVATE OpenGL::GL SDL2::SDL2 physfs nfd)
+target_include_directories(predation-common PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm vendor/nativefiledialog-extended/src/include src/Common ./)
 
 
 ###
@@ -71,7 +73,7 @@ target_include_directories(predation-common PRIVATE vendor vendor/glad/include v
 ###
 add_executable(${PROJECT_NAME} predation.cpp ${GAME_SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL SDL2::SDL2 physfs Predation::Common)
-target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm src/Common src/Game ./)
+target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm vendor/nativefiledialog-extended/src/include src/Common src/Game ./)
 
 ###
 # Build the experimental MapEditor application that generates random maps for OCARN2
@@ -80,7 +82,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include ve
 ###
 add_executable(editor editor.cpp ${EDITOR_SOURCES})
 target_link_libraries(editor PRIVATE OpenGL::GL SDL2::SDL2 physfs Predation::Common)
-target_include_directories(editor PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm src/ src/Common ./)
+target_include_directories(editor PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm vendor/nativefiledialog-extended/src/include src/ src/Common ./)
 
 ###
 # Copies the dlls required for predation.exe into the bin dir.

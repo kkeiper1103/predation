@@ -3,6 +3,7 @@
 //
 
 #include <easyloggingpp/easylogging++.h>
+#include <nfd.h>
 #include "App.h"
 
 App::App(const char* argv0, std::string title, int width, int height, bool fullscreen) {
@@ -10,6 +11,8 @@ App::App(const char* argv0, std::string title, int width, int height, bool fulls
     PHYSFS_setSaneConfig("Predation", title.c_str(), "zip", 1, 1);
 
     if(!SDL_WasInit(SDL_INIT_EVERYTHING)) SDL_Init(SDL_INIT_EVERYTHING);
+
+    NFD_Init();
 
     // Initialize SDL Window for Rendering
     int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
@@ -50,6 +53,7 @@ App::~App() {
     nk_sdl_shutdown();
     SDL_GL_DeleteContext(gl);
     SDL_DestroyWindow(window);
+    NFD_Quit();
     SDL_Quit();
     PHYSFS_deinit();
 }

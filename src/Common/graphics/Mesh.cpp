@@ -1,98 +1,40 @@
-//
-// Created by kkeiper1103 on 11/6/22.
-//
-
 #include "Mesh.h"
 
-/**
- * Generate the gl resources for the VAO, VBO, and IBO/EBO, then fill the buffers with the passed-in data
- *
- * @param vertices
- * @param indices
- */
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLushort> indices) : vertices(std::move(vertices)), indices(std::move(indices)) {
-    glGenVertexArrays(1, &id);
-    glGenBuffers(1, &bufferId);
+#include <stdexcept>
 
-    setData(this->vertices, this->indices);
-
-    shader = Shader::FromFiles("resources/shaders/Mesh.vert", "resources/shaders/Mesh.frag");
+Mesh::Mesh(PHYSFS_File *file) {
+    throw std::runtime_error("PHYSFS file based mesh not implemented yet! Requires retooling of OCARN2");
 }
 
-/**
- * delete the gl resources when the object goes out of scope
- */
+Mesh::Mesh(const std::string &filename) {
+    data = load_car_file(filename.c_str()); dataPresent = true;
+
+    InitGL();
+
+    UploadBuffers();
+    UploadTextures();
+}
+
 Mesh::~Mesh() {
-    glDeleteBuffers(1, &bufferId);
-
     glDeleteVertexArrays(1, &id);
+    glDeleteBuffers(2, bufferIds);
+    glDeleteTextures(1, &textureId);
+
+    free_mesh(data); dataPresent = false;
 }
 
-/**
- * Not used yet. intended for an update loop, but not sure if a mesh really needs updated. Possibly for an animated mesh?
- * @param dt
- */
-void Mesh::update(double dt) {
+bool Mesh::InitGL() {
+    glCreateVertexArrays(1, &id);
+    glCreateBuffers(2, bufferIds);
+    glCreateTextures(GL_TEXTURE_2D, 1, &textureId);
 
+    return true;
 }
 
-void Mesh::draw() {
-
-    // bind the shader and then assign each material associated with the mesh to the shader's texture unit
-    // materials[0] gets bound to texture0, materials[1] -> texture1, materials[2] -> texture2
-    shader->use();
-
-    // handle culling if enabled
-    if(cullFaces) {
-        glEnable(GL_CULL_FACE);
-        glFrontFace(frontFace);
-        glCullFace(cullFace);
-    }
-    else {
-        glDisable(GL_CULL_FACE);
-    }
-
-    // bind the mesh's vertex array object
-    glBindVertexArray(id);
-    { // these braces aren't necessary, but I find that I like the conceptual information they provide, since they show that glDrawElements is supposed to happen only while the vao is bound
-        glDrawArrays(drawMode, 0, vertices.size());
-    }
-    glBindVertexArray(0); // unbind the vao so contamination doesn't happen
-
-
-    // turn off face culling
-    glDisable(GL_CULL_FACE);
+bool Mesh::UploadBuffers() {
+    return true;
 }
 
-void Mesh::setData(std::vector<Vertex> vertices, std::vector<idx_t> indices) {
-    this->vertices = std::move(vertices);
-    this->indices = std::move(indices);
-
-    glBindVertexArray(id);
-    { // see note in render method
-
-        /**
-         * tell gl that the buffer it should write to is the vbo
-         * one thing of note is that we have to use the fully qualified member variable, not the local variable specifically because we called std::move on it earlier
-         * vertices is empty; this->vertices now holds what vertices used to
-         */
-        glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this->vertices.size(), &this->vertices[0], GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position));
-        glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, color));
-        glEnableVertexAttribArray(2);
-
-        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, texture));
-        glEnableVertexAttribArray(3);
-
-        glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, texture));
-        glEnableVertexAttribArray(4);
-    }
-    glBindVertexArray(0);
-
-    // now calculate aabb for funsies
-    calculateAABBPoints();
+bool Mesh::UploadTextures() {
+    return true;
 }

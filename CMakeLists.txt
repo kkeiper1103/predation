@@ -31,7 +31,9 @@ set(COMMON_SOURCES
         vendor/glad/src/glad.c
         vendor/tinyfiledialogs/tinyfiledialogs.c
 
-        src/Common/App.cpp src/Common/App.h)
+        src/Common/App.cpp src/Common/App.h
+        src/Common/factories/MeshFactory.cpp src/Common/factories/MeshFactory.h
+        src/Common/factories/IFactory.h)
 
 set(GAME_SOURCES
         src/Game/Application/Kernel.cpp

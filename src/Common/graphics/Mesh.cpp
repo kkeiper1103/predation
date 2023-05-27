@@ -2,25 +2,11 @@
 
 #include <stdexcept>
 
-Mesh::Mesh(PHYSFS_File *file) {
-    throw std::runtime_error("PHYSFS file based mesh not implemented yet! Requires retooling of OCARN2");
-}
-
-Mesh::Mesh(const std::string &filename) {
-    data = load_car_file(filename.c_str()); dataPresent = true;
-
-    InitGL();
-
-    UploadBuffers();
-    UploadTextures();
-}
-
 Mesh::~Mesh() {
     glDeleteVertexArrays(1, &id);
     glDeleteBuffers(2, bufferIds);
     glDeleteTextures(1, &textureId);
 
-    free_mesh(data); dataPresent = false;
 }
 
 bool Mesh::InitGL() {
@@ -37,4 +23,12 @@ bool Mesh::UploadBuffers() {
 
 bool Mesh::UploadTextures() {
     return true;
+}
+
+Mesh::Mesh(const std::vector<float> &positions, const std::vector<float> &texCoords) : positions{positions}, texCoords{texCoords} {
+
+    InitGL();
+
+    UploadBuffers();
+    UploadTextures();
 }

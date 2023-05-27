@@ -13,14 +13,13 @@
 
 class Mesh {
 public:
-    Mesh(PHYSFS_File* file);
-    Mesh(const std::string& filename);
+    explicit Mesh() : Mesh({}, {}) {}
+    Mesh(const std::vector<float>& positions, const std::vector<float>& texCoords);
     ~Mesh();
 
-    bool IsLoaded() const { return dataPresent; }
 
     void Debug() {
-        fprintf(stdout, "Model Name: %s\n", data.name);
+
     }
 
 protected:
@@ -30,8 +29,6 @@ protected:
 
 public:
     GLuint id {0}, bufferIds[2] {0, 0}, textureId{0};
-    OCARN2::Mesh data;
 
-protected:
-    bool dataPresent = false;
+    std::vector<float> positions, texCoords;
 };

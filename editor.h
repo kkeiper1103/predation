@@ -10,6 +10,7 @@
 #include "Common/App.h"
 #include "MapEditor/Data/MapSettings.h"
 #include "graphics/Mesh.h"
+#include "factories/MeshFactory.h"
 
 class MapEditor : public App {
 public:
@@ -48,9 +49,9 @@ protected:
             //
             nk_label(ui, "Open CAR/3DF File", NK_TEXT_ALIGN_LEFT);
             ui_file_dialog(ui, "Open CAR/3DF File", {{"Model", "car,CAR,3df,3DF"}}, [&](const char* filename) {
-                Mesh mesh(filename);
+                auto mesh = meshFactory.Get(filename);
 
-                mesh.Debug();
+                mesh->Debug();
             });
 
             //
@@ -101,6 +102,8 @@ protected:
 
 public:
     MapSettings settings;
+
+    MeshFactory meshFactory;
 };
 
 #endif //PREDATION_EDITOR_H

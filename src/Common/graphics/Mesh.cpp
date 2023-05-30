@@ -18,6 +18,20 @@ bool Mesh::InitGL() {
 }
 
 bool Mesh::UploadBuffers() {
+    glNamedBufferData(bufferIds[0], sizeof(float) * positions.size(), positions.data(), GL_STATIC_DRAW);
+    glVertexArrayVertexBuffer(id, 0, bufferIds[0], 0, sizeof(float));
+
+    glNamedBufferData(bufferIds[1], sizeof(float) * texCoords.size(), texCoords.data(), GL_STATIC_DRAW);
+    glVertexArrayVertexBuffer(id, 0, bufferIds[1], 0, sizeof(float));
+
+    glEnableVertexArrayAttrib(id, 0);
+    glVertexArrayAttribFormat(id, 0, 3, GL_FLOAT, GL_FALSE, 0);
+    glVertexArrayAttribBinding(id, 0, 0);
+
+    glEnableVertexArrayAttrib(id, 1);
+    glVertexArrayAttribFormat(id, 1, 2, GL_FLOAT, GL_FALSE, 0);
+    glVertexArrayAttribBinding(id, 1, 1);
+
     return true;
 }
 

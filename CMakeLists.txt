@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
 project(predation)
 
+
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(OpenGL REQUIRED)
@@ -33,7 +34,7 @@ set(COMMON_SOURCES
 
         src/Common/App.cpp src/Common/App.h
         src/Common/factories/MeshFactory.cpp src/Common/factories/MeshFactory.h
-        src/Common/factories/IFactory.h)
+        src/Common/factories/IFactory.h src/Common/models/Character.cpp src/Common/models/Character.h src/Common/models/Terrain.cpp src/Common/models/Terrain.h)
 
 set(GAME_SOURCES
         src/Game/Application/Kernel.cpp

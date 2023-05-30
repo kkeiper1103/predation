@@ -58,8 +58,8 @@ protected:
             nk_label(ui, "Open All Models in Folder", NK_TEXT_ALIGN_LEFT);
             ui_folder_dialog(ui, "Select Folder", [&](const char* path) {
                 fprintf(stdout, "Searching %s\n", path);
-                PHYSFS_mount(path, NULL, 1);
-                auto result = PHYSFS_enumerateFiles(path);
+                PHYSFS_mount(path, "/models", 1);
+                auto result = PHYSFS_enumerateFiles("/models");
 
                 if (*result == NULL) {
                     fprintf(stdout, "Failed to enumerate files: %s\n", PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));

@@ -43,7 +43,7 @@ App::App(const char* argv0, std::string title, int width, int height, bool fulls
     ui = nk_sdl_init(window);
 
     nk_sdl_font_stash_begin(&gui_font_atlas);
-    auto body = nk_font_atlas_add_from_file(gui_font_atlas, "resources/fonts/Arcon-Regular.otf", 20, 0);
+    auto body = nk_font_atlas_add_from_file(gui_font_atlas, "resources/fonts/Arcon-Regular.otf", 20 * scale_factor, 0);
     nk_sdl_font_stash_end();
 
     nk_style_set_font(ui, &body->handle);

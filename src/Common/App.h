@@ -35,5 +35,7 @@ public:
     bool running = true;
 };
 
+// scaling for hdpi stuff
+inline float scale_factor = 2.0f;
 
 #endif //PREDATION_APP_H

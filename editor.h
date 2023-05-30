@@ -34,7 +34,7 @@ protected:
         if( showQuitDialog ) {
 
             if(nk_begin(ui, "Quit?", nk_rect(paneWidth, paneWidth, (w / 2.f) - (paneWidth / 2.f), (h / 2.f) - (paneWidth / 2.f)), NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
-                nk_layout_row_dynamic(ui, 35, 2);
+                nk_layout_row_dynamic(ui, 35 * scale_factor, 2);
 
                 if(nk_button_label(ui, "No")) showQuitDialog = false;
                 if(nk_button_label(ui, "Yes")) running = false;
@@ -47,7 +47,7 @@ protected:
 
         // left pane
         if(nk_begin(ui, "Left Pane", nk_rect(paneOffset, paneOffset, paneWidth, h - paneOffset * 2),NK_WINDOW_BORDER | NK_WINDOW_TITLE | NK_WINDOW_MINIMIZABLE)) {
-            nk_layout_row_dynamic(ui, 35, 1);
+            nk_layout_row_dynamic(ui, 35 * scale_factor, 1);
 
             char buffer[255];
 
@@ -94,7 +94,7 @@ protected:
 
         // right pane
         if(nk_begin(ui, "Right Pane", nk_rect(w - paneWidth - (paneOffset * 2), paneOffset, paneWidth, h - paneOffset * 2), NK_WINDOW_BORDER | NK_WINDOW_TITLE | NK_WINDOW_MINIMIZABLE)) {
-            nk_layout_row_dynamic(ui, 35, 2);
+            nk_layout_row_dynamic(ui, 35 * scale_factor, 2);
 
             // map seed
             ui_seed_widget(ui, &settings.seed);

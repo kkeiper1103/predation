@@ -3,6 +3,7 @@
 //
 
 #include "ui.h"
+#include "App.h"
 
 char buffer[255];
 /**
@@ -50,7 +51,7 @@ void ui_seed_widget(nk_context* context, unsigned int* pValue) {
  * @param onClick
  */
 void ui_button_widget(nk_context* ctx, const char* text, const std::function<void()>& onClick) {
-    nk_layout_row_dynamic(ctx, 35, 1);
+    nk_layout_row_dynamic(ctx, 35 * scale_factor, 1);
     if(nk_button_label(ctx, text)) onClick();
 }
 

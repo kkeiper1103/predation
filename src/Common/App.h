@@ -36,6 +36,6 @@ public:
 };
 
 // scaling for hdpi stuff
-inline float scale_factor = 2.0f;
+inline float scale_factor = 1.0f;
 
 #endif //PREDATION_APP_H

@@ -24,6 +24,11 @@ App::App(const char* argv0, std::string title, int width, int height, bool fulls
 
         width = dm.w;
         height = dm.h;
+
+        // if width is over 1920, begin increasing scale
+        if(width > 1920) {
+            scale_factor = width / 1920.f;
+        }
     }
     window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
 

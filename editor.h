@@ -27,8 +27,8 @@ protected:
         int w, h;
         SDL_GetWindowSize(window, &w, &h);
 
-        static int paneWidth = 400;
-        static int paneOffset = 10;
+        float paneWidth = w * .20;
+        float paneOffset = w * .01;
 
         // @todo refactor to helper method
         if( showQuitDialog ) {

@@ -34,7 +34,7 @@ set(COMMON_SOURCES
 
         src/Common/App.cpp src/Common/App.h
         src/Common/factories/MeshFactory.cpp src/Common/factories/MeshFactory.h
-        src/Common/factories/IFactory.h src/Common/models/Character.cpp src/Common/models/Character.h src/Common/models/Terrain.cpp src/Common/models/Terrain.h)
+        src/Common/factories/IFactory.h src/Common/models/Character.cpp src/Common/models/Character.h src/Common/models/Terrain.cpp src/Common/models/Terrain.h src/Common/factories/CharacterFactory.cpp src/Common/factories/CharacterFactory.h src/Common/factories/TerrainFactory.cpp src/Common/factories/TerrainFactory.h)
 
 set(GAME_SOURCES
         src/Game/Application/Kernel.cpp

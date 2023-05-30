@@ -11,7 +11,7 @@
 #include <glm/glm.hpp>
 #include <ocarn2.h>
 
-#include "Common/graphics/Texture.h"
+#include "graphics/Texture.h"
 
 class Mesh {
 public:

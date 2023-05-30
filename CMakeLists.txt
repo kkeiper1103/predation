@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
 project(predation)
 
-
+set(PHYSFS_TARGETNAME_UNINSTALL "uninstall-physfs")
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(OpenGL REQUIRED)

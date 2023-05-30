@@ -17,7 +17,9 @@ public:
     explicit MapEditor(const char* argv0) : App(argv0, "Map Editor", 1920, 1080, true) {}
 
 protected:
-    void Input(const SDL_Event &e) override { }
+    void Input(const SDL_Event &e) override {
+        if(e.type == SDL_KEYUP && e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) showQuitDialog = !showQuitDialog;
+    }
     void Render() override { }
     void Update(float dt) override { }
 
@@ -27,6 +29,21 @@ protected:
 
         static int paneWidth = 400;
         static int paneOffset = 10;
+
+        // @todo refactor to helper method
+        if( showQuitDialog ) {
+
+            if(nk_begin(ui, "Quit?", nk_rect(paneWidth, paneWidth, (w / 2.f) - (paneWidth / 2.f), (h / 2.f) - (paneWidth / 2.f)), NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
+                nk_layout_row_dynamic(ui, 35, 2);
+
+                if(nk_button_label(ui, "No")) showQuitDialog = false;
+                if(nk_button_label(ui, "Yes")) running = false;
+            }
+            nk_end(ui);
+
+            return;
+        }
+
 
         // left pane
         if(nk_begin(ui, "Left Pane", nk_rect(paneOffset, paneOffset, paneWidth, h - paneOffset * 2),NK_WINDOW_BORDER | NK_WINDOW_TITLE | NK_WINDOW_MINIMIZABLE)) {
@@ -104,6 +121,8 @@ public:
     MapSettings settings;
 
     MeshFactory meshFactory;
+
+    bool showQuitDialog = false;
 };
 
 #endif //PREDATION_EDITOR_H

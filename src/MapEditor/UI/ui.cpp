@@ -72,9 +72,9 @@ unsigned int fnv1aHash(const std::string& str) {
 
 void ui_file_dialog(nk_context *ctx, const char *label, const std::vector<nfdfilteritem_t>& filters, const std::function<void(const char *)> &onSelect) {
     ui_button_widget(ctx, label, [&]() {
-        /*char const* res = tinyfd_openFileDialog(label, "", filters.size(), filters.data(), nullptr, 0);
 
-        if(res != nullptr) onSelect(res);*/
+        auto window = SDL_GL_GetCurrentWindow();
+        SDL_MinimizeWindow(window);
 
         nfdchar_t *outPath;
         if( NFD_OKAY == NFD_OpenDialog(&outPath, filters.data(), filters.size(), nullptr) ) {
@@ -82,16 +82,24 @@ void ui_file_dialog(nk_context *ctx, const char *label, const std::vector<nfdfil
 
             NFD_FreePath(outPath);
         }
+
+        SDL_MaximizeWindow(window);
     });
 }
 
 void ui_folder_dialog(nk_context *ctx, const char *label, const std::function<void(const char *)> &onSelect) {
     ui_button_widget(ctx, label, [&]() {
+
+        auto window = SDL_GL_GetCurrentWindow();
+        SDL_MinimizeWindow(window);
+
         nfdchar_t *outPath;
         if (NFD_OKAY == NFD_PickFolder(&outPath, "")) {
             onSelect(outPath);
 
             NFD_FreePath(outPath);
         }
+
+        SDL_MaximizeWindow(window);
     });
 }

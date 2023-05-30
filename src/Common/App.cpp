@@ -22,8 +22,14 @@ App::App(const char* argv0, std::string title, int width, int height, bool fulls
         SDL_DisplayMode dm;
         SDL_GetDesktopDisplayMode(0, &dm);
 
-        width = dm.w;
-        height = dm.h;
+        float defaultDpi = 30.48; // base dpi for non-zoomed display. not sure if proper, but it's my computer's info
+        float ddpi, hdpi, vdpi;
+        SDL_GetDisplayDPI(0, &ddpi, &hdpi, &vdpi);
+
+        printf("DPI: %.2f, %.2f, %.2f\n", ddpi, hdpi, vdpi);
+
+        width = dm.w / (hdpi / defaultDpi);
+        height = dm.h / (hdpi / defaultDpi);
     }
     window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
 

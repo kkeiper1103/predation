@@ -15,10 +15,17 @@
 #include "graphics/Mesh.h"
 #include "factories/MeshFactory.h"
 #include "factories/CharacterFactory.h"
+#include "models/Terrain.h"
+
+#include <siv/PerlinNoise.hpp>
+#include <thread>
 
 class MapEditor : public App {
 public:
     explicit MapEditor(const char* argv0) : App(argv0, "Map Editor", 1920, 1080, true) {}
+    ~MapEditor() override {
+        if(regenThread.joinable()) regenThread.join();
+    }
 
 protected:
     void Input(const SDL_Event &e) override {
@@ -121,18 +128,61 @@ protected:
             ui_slider_widget(ui, &settings.vegetation, "Vegetation Factor");
 
             //
-            ui_button_widget(ui, "Update Map", []() {
+            ui_button_widget(ui, "Update Map", [&]() {
                 fprintf(stdout, "Update Map\n");
+
+                if(mapGenRequested.load()) {
+                    fprintf(stdout, "Map Generation In Progress... Please Wait.\n");
+                    return;
+                }
+
+                mapGenRequested.store(true);
+
+                if(regenThread.joinable()) regenThread.join();
+
+                regenThread = std::thread{ [&]() {
+                    regen();
+
+                    mapGenRequested.store(false);
+                }};
             });
         }
         nk_end(ui);
     }
+protected:
+    siv::PerlinNoise elevation;
+    siv::PerlinNoise vegetation;
+    siv::PerlinNoise temperature;
 
+    std::atomic<bool> mapGenRequested {false};
+    std::thread regenThread;
 
 public:
     MapSettings settings;
 
     MeshFactory meshFactory;
+
+    OCARN2::Map map;
+    OCARN2::Rsc rsc;
+    std::unique_ptr<Terrain> terrain { new Terrain(&map, &rsc) };
+
+    void regen() {
+        // @todo regen in another thread
+
+        elevation.reseed(settings.seed);
+        temperature.reseed(settings.seed);
+        vegetation.reseed(settings.seed);
+
+        for(int z=0; z < 1024; z++) {
+            for(int x=0; x < 1024; x++) {
+                map.heightMap[z*1024 + x] = elevation.octave2D_01((x * settings.elevation / 10.f), (z * settings.elevation / 10.f), 4);
+            }
+        }
+
+        terrain.reset( new Terrain(&map, &rsc) );
+
+        printf("Terrain Rebuilt\n");
+    }
 
     bool showQuitDialog = false;
 };

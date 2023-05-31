@@ -13,12 +13,13 @@
 
 class Character {
 public:
-    explicit Character(const std::string& filename);
-    ~Character();
+    using Data = OCARN2::Mesh; // renaming ocarn2 type because it's confusing to see Mesh next to Mesh, when they're two different things (one is raw data, the other is GL specific)
+
+public:
+    explicit Character(Data* data);
 
 protected:
-    using Data = OCARN2::Mesh; // renaming ocarn2 type because it's confusing to see Mesh next to Mesh, when they're two different things (one is raw data, the other is GL specific)
-    Data data;
+    Data* data = nullptr;
 
     Mesh::Ptr mesh;
     Transform transform;

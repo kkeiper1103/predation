@@ -4,18 +4,17 @@
 
 #include "Character.h"
 
-Character::Character(const std::string &filename) {
-    data = load_car_file(filename.c_str());
+Character::Character(Data* data) : data{data} {
 
     // generate glbuffer from car data
     std::vector<float> positions, texCoords;
-    positions.resize(data.numFaces * 3);
-    texCoords.resize(data.numFaces * 2);
+    positions.reserve(data->numFaces * 3);
+    texCoords.reserve(data->numFaces * 2);
 
-    for(auto& face: data.faces) {
-        auto v1 = data.vertices[face.v1],
-                v2 = data.vertices[face.v2],
-                v3 = data.vertices[face.v3];
+    for(auto& face: data->faces) {
+        auto v1 = data->vertices[face.v1],
+                v2 = data->vertices[face.v2],
+                v3 = data->vertices[face.v3];
 
         positions.emplace_back(v1.x); positions.emplace_back( v1.y); positions.emplace_back( v1.z); texCoords.emplace_back( face.tax / 256.f); texCoords.emplace_back( face.tay / 256.f);
         positions.emplace_back(v2.x); positions.emplace_back( v2.y); positions.emplace_back( v2.z); texCoords.emplace_back( face.tbx / 256.f); texCoords.emplace_back( face.tby / 256.f);
@@ -29,10 +28,10 @@ Character::Character(const std::string &filename) {
     
     // figure out how to handle the texture... :/
     std::vector<GLushort> texture(256 * 256, 0);
-    memcpy(texture.data(), data.textureData, data.textureSize);
+    memcpy(texture.data(), data->textureData, data->textureSize);
 
     //
-    for(int i=0; i < data.textureSize / 2; i++) {
+    for(int i=0; i < data->textureSize / 2; i++) {
         auto& pixel = texture[i];
 
         int B = ((pixel>> 0) & 31);
@@ -55,8 +54,12 @@ Character::Character(const std::string &filename) {
     glTextureStorage2D(mesh->textureId, 1, GL_RGB5_A1, 256, 256);
     glTextureSubImage2D(mesh->textureId, 0, 0, 0, 256, 256, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, texture.data());
     glGenerateMipmap(GL_TEXTURE_2D);
-}
 
-Character::~Character() {
-    free_mesh(data);
+
+    //
+    transform = {
+            {0, 0, 0},
+            {}, {},
+            {.05, .05, .05}
+    };
 }

@@ -5,12 +5,16 @@
 #ifndef PREDATION_EDITOR_H
 #define PREDATION_EDITOR_H
 
+#include <algorithm>
+#include <string>
+
 #include "MapEditor/UI/ui.h"
 
 #include "Common/App.h"
 #include "MapEditor/Data/MapSettings.h"
 #include "graphics/Mesh.h"
 #include "factories/MeshFactory.h"
+#include "factories/CharacterFactory.h"
 
 class MapEditor : public App {
 public:
@@ -66,9 +70,10 @@ protected:
             //
             nk_label(ui, "Open CAR/3DF File", NK_TEXT_ALIGN_LEFT);
             ui_file_dialog(ui, "Open CAR/3DF File", {{"Model", "car,CAR,3df,3DF"}}, [&](const char* filename) {
-                auto mesh = meshFactory.Get(filename);
+                auto factory = CharacterFactory();
+                auto character = factory.Get(filename);
 
-                mesh->Debug();
+
             });
 
             //
@@ -83,6 +88,13 @@ protected:
                 }
 
                 for(char** file = result; *file != NULL; file++) {
+                    auto filename = std::string(*file);
+                    // allcaps the string so we have consistent checking of file extensions (eg car == CAR == cAR etc)
+                    std::transform(filename.begin(), filename.end(), filename.begin(), ::toupper);
+                    if( !filename.ends_with(".CAR") && !filename.ends_with("3DF") ) {
+                        continue;
+                    }
+
                     fprintf(stdout, "Model: %s\n", *file);
                 }
 

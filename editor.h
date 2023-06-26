@@ -70,8 +70,8 @@ protected:
             //
             nk_label(ui, "Open CAR/3DF File", NK_TEXT_ALIGN_LEFT);
             ui_file_dialog(ui, "Open CAR/3DF File", {{"Model", "car,CAR,3df,3DF"}}, [&](const char* filename) {
-                auto factory = CharacterFactory();
-                auto character = factory.Get(filename);
+
+                auto character = characterFactory.Get(filename);
 
 
             });
@@ -133,6 +133,7 @@ public:
     MapSettings settings;
 
     MeshFactory meshFactory;
+    CharacterFactory characterFactory;
 
     bool showQuitDialog = false;
 };

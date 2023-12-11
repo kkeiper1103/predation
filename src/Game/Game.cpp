@@ -8,9 +8,7 @@ Game::Game(const char *argv0) : App(argv0, "Predation++", 1920, 1080, true) {
     kernel = std::make_unique<Kernel>();
 }
 
-Game::~Game() {
-
-}
+Game::~Game() = default;
 
 void Game::StartFrame() {
     App::StartFrame();

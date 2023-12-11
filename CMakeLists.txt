@@ -53,7 +53,7 @@ set(GAME_SOURCES
 
         src/Game/Hunt/Terrain/RandomTerrain.cpp
         src/Game/Hunt/Terrain/ITerrain.h
-        src/Game/Game.cpp src/Game/Game.h)
+        src/Game/Game.cpp src/Game/Game.h src/Game/Controls/ComboController.cpp src/Game/Controls/ComboController.h)
 
 set(EDITOR_SOURCES
         src/MapEditor/UI/ui.cpp src/MapEditor/UI/ui.h src/MapEditor/Data/MapSettings.h)

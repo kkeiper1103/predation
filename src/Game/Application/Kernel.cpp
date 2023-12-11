@@ -316,10 +316,11 @@ void Kernel::drawHuntSetup(nk_context *ctx) {
 }
 
 void Kernel::drawSettings(nk_context *ctx) {
-    auto config = &app()->config;
+    float panelWidth = 400,
+        panelHeight = 800;
 
     // game. "Accept Changes" Button lives here
-    if( ui_panel_begin(ctx, "Game", nk_rect(10, 10, config->width / 2 - 5, config->height / 2 - 5), NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR) ) {
+    if( ui_panel_begin(ctx, "Game", nk_rect(10, 10, panelWidth, panelHeight), NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR) ) {
 
         nk_layout_row_dynamic(ctx, 25, 2);
 
@@ -363,7 +364,7 @@ void Kernel::drawSettings(nk_context *ctx) {
     } nk_end(ctx);
 
     // video
-    if( ui_panel_begin(ctx, "Video", nk_rect(10, config->height / 2 + 5, config->width / 2 - 5, config->height / 2 - 5), NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR) ) {
+    if( ui_panel_begin(ctx, "Video", nk_rect(10, panelHeight + 40, panelWidth, panelHeight), NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR) ) {
 
         nk_layout_row_dynamic(ctx, 25, 1);
 
@@ -407,7 +408,7 @@ void Kernel::drawSettings(nk_context *ctx) {
     } nk_end(ctx);
 
     // controls
-    if( ui_panel_begin(ctx, "Controls", nk_rect(config->width / 2 + 5, 10, config->width / 2 - 5, config->height - 10), NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR) ) {
+    if( ui_panel_begin(ctx, "Controls", nk_rect(panelWidth + 30, 10, panelWidth, panelHeight), NK_WINDOW_BORDER|NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR) ) {
 
         nk_layout_row_begin(ctx, NK_STATIC, 25, 2);
 
@@ -415,24 +416,27 @@ void Kernel::drawSettings(nk_context *ctx) {
         nk_label(ctx, "Forward", NK_TEXT_ALIGN_RIGHT);
         nk_layout_row_push(ctx, 300);
         nk_label(ctx, SDL_GetScancodeName(gameSettings.controls.forward), NK_TEXT_ALIGN_LEFT);
-
+        nk_layout_row_end(ctx);
 
         nk_layout_row_push(ctx, 200);
         nk_label(ctx, "Backward", NK_TEXT_ALIGN_RIGHT);
         nk_layout_row_push(ctx, 300);
         nk_label(ctx, SDL_GetScancodeName(gameSettings.controls.backward), NK_TEXT_ALIGN_LEFT);
+        nk_layout_row_end(ctx);
 
 
         nk_layout_row_push(ctx, 200);
         nk_label(ctx, "Left", NK_TEXT_ALIGN_RIGHT);
         nk_layout_row_push(ctx, 300);
         nk_label(ctx, SDL_GetScancodeName(gameSettings.controls.left), NK_TEXT_ALIGN_LEFT);
+        nk_layout_row_end(ctx);
 
 
         nk_layout_row_push(ctx, 200);
         nk_label(ctx, "Right", NK_TEXT_ALIGN_RIGHT);
         nk_layout_row_push(ctx, 300);
         nk_label(ctx, SDL_GetScancodeName(gameSettings.controls.right), NK_TEXT_ALIGN_LEFT);
+        nk_layout_row_end(ctx);
 
 
         static std::vector<const char*> buttons {
@@ -446,32 +450,36 @@ void Kernel::drawSettings(nk_context *ctx) {
         nk_label(ctx, "Fire Weapon", NK_TEXT_ALIGN_RIGHT);
         nk_layout_row_push(ctx, 300);
         nk_label(ctx, buttons[gameSettings.controls.fireWeapon], NK_TEXT_ALIGN_LEFT);
+        nk_layout_row_end(ctx);
 
 
         nk_layout_row_push(ctx, 200);
         nk_label(ctx, "Toggle Weapon", NK_TEXT_ALIGN_RIGHT);
         nk_layout_row_push(ctx, 300);
         nk_label(ctx, buttons[gameSettings.controls.toggleWeapon], NK_TEXT_ALIGN_LEFT);
+        nk_layout_row_end(ctx);
 
 
         nk_layout_row_push(ctx, 200);
         nk_label(ctx, "Call Animal", NK_TEXT_ALIGN_RIGHT);
         nk_layout_row_push(ctx, 300);
         nk_label(ctx, SDL_GetScancodeName(gameSettings.controls.call), NK_TEXT_ALIGN_LEFT);
+        nk_layout_row_end(ctx);
 
 
         nk_layout_row_push(ctx, 200);
         nk_label(ctx, "Change Active Call", NK_TEXT_ALIGN_RIGHT);
         nk_layout_row_push(ctx, 300);
         nk_label(ctx, SDL_GetScancodeName(gameSettings.controls.changeCall), NK_TEXT_ALIGN_LEFT);
+        nk_layout_row_end(ctx);
 
 
         nk_layout_row_push(ctx, 200);
         nk_label(ctx, "Binoculars", NK_TEXT_ALIGN_RIGHT);
         nk_layout_row_push(ctx, 300);
         nk_label(ctx, SDL_GetScancodeName(gameSettings.controls.binoculars), NK_TEXT_ALIGN_LEFT);
-
         nk_layout_row_end(ctx);
+
 
         nk_layout_row_dynamic(ctx, 25, 2);
         nk_label(ctx, "", NK_TEXT_ALIGN_RIGHT);

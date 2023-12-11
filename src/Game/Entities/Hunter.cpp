@@ -8,6 +8,7 @@
 #include "Application/Kernel.h"
 #include "Controls/KeyboardController.h"
 #include "Controls/GamepadController.h"
+#include "Controls/ComboController.h"
 
 void Hunter::input(SDL_Event *e) {
 
@@ -107,13 +108,9 @@ void Hunter::draw() {
 Hunter::Hunter(Hunt* parent, glm::vec3 position) :
     parent(parent),
     position{position},
-    camera(this, position, rotation)
+    camera(this, position, rotation),
+    controller { std::make_unique<ComboController>() }
 {
-    controller = std::make_unique<KeyboardController>();
-
-    if(SDL_IsGameController(0) == SDL_TRUE)
-        controller = std::make_unique<GamepadController>(0);
-
     // make mesh for bounding boxes / collisions
     auto assetPaths = parent->parent->GetAssetPaths();
     auto data = load_car_file( std::string {assetPaths[0] + "/HUNTER1.CAR"}.c_str() );

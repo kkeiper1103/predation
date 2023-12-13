@@ -34,6 +34,8 @@ public:
     glm::vec3 velocity{5, 9.8, 5};
 
 
+    static std::unique_ptr<Shader> shader2;
+
     std::shared_ptr<Shader> shader;
     std::unique_ptr<Controller> controller;
 
@@ -55,6 +57,8 @@ public:
     void input(SDL_Event* e);
     void update(double dt);
     void draw();
+
+    [[nodiscard]] glm::mat4 GetModel() const { return model; }
 
     Camera camera;
 };

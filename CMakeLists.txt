@@ -8,6 +8,7 @@ find_package(OpenGL REQUIRED)
 add_subdirectory(vendor/SDL2)
 add_subdirectory(vendor/physfs)
 add_subdirectory(vendor/nativefiledialog-extended)
+add_subdirectory(vendor/bullet3-3.25)
 
 set(COMMON_SOURCES
         src/Common/Application.cpp
@@ -53,7 +54,7 @@ set(GAME_SOURCES
 
         src/Game/Hunt/Terrain/RandomTerrain.cpp
         src/Game/Hunt/Terrain/ITerrain.h
-        src/Game/Game.cpp src/Game/Game.h src/Game/Controls/ComboController.cpp src/Game/Controls/ComboController.h)
+        src/Game/Game.cpp src/Game/Game.h src/Game/Controls/ComboController.cpp src/Game/Controls/ComboController.h src/Game/Hunt/World.cpp src/Game/Hunt/World.h)
 
 set(EDITOR_SOURCES
         src/MapEditor/UI/ui.cpp src/MapEditor/UI/ui.h src/MapEditor/Data/MapSettings.h)
@@ -65,8 +66,8 @@ set(EDITOR_SOURCES
 ###
 add_library(predation-common STATIC ${COMMON_SOURCES})
 add_library(Predation::Common ALIAS predation-common)
-target_link_libraries(predation-common PRIVATE OpenGL::GL SDL2::SDL2 physfs nfd)
-target_include_directories(predation-common PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm vendor/nativefiledialog-extended/src/include src/Common ./)
+target_link_libraries(predation-common PRIVATE OpenGL::GL SDL2::SDL2 physfs nfd BulletDynamics BulletCollision LinearMath Bullet3Common )
+target_include_directories(predation-common PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm vendor/nativefiledialog-extended/src/include src/Common ./ ${BULLET_PHYSICS_SOURCE_DIR}/src)
 
 
 ###
@@ -76,7 +77,7 @@ target_include_directories(predation-common PRIVATE vendor vendor/glad/include v
 ###
 add_executable(${PROJECT_NAME} predation.cpp ${GAME_SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL SDL2::SDL2 physfs Predation::Common)
-target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm vendor/nativefiledialog-extended/src/include src/Common src/Game ./)
+target_include_directories(${PROJECT_NAME} PRIVATE vendor vendor/glad/include vendor/physfs/src vendor/glm vendor/nativefiledialog-extended/src/include src/Common src/Game ./ ${BULLET_PHYSICS_SOURCE_DIR}/src)
 
 ###
 # Build the experimental MapEditor application that generates random maps for OCARN2

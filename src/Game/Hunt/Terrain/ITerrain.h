@@ -38,6 +38,7 @@ public:
 
     virtual glm::vec3 GetRandomSpawnLocation() = 0;
 
+    // static std::unique_ptr<Shader> shader;
 
     std::shared_ptr<Shader> shader;
     int chunksPerSide {1};

@@ -26,6 +26,7 @@ public:
     glm::vec3 rotation{0, 0, 0};
     glm::vec3 position{0, 0, 0};
 
+    static std::unique_ptr<Shader> shader;
 
 public: // collision stuff
     CollisionShape* bounds = nullptr;
@@ -46,6 +47,9 @@ public:
 
     void update(double dt);
     void draw();
+
+    // @todo probably bad. switch to filling in outside mat4, rather than returning one
+    [[nodiscard]] glm::mat4 GetModel() const { return model; }
 };
 
 typedef std::shared_ptr<Animal> AnimalPtr;

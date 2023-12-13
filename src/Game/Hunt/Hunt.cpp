@@ -32,6 +32,15 @@ Hunt::Hunt(Kernel* parent, const AreaEntry &area, std::vector<AnimalEntry> anima
     // carn2 and ice age should give us 32 chunks across
     terrain = std::make_unique<ChunkedTerrain>(&map, &rsc, ceil(sqrt(mapsize)));
 
+    // physics
+    config = std::make_shared<btDefaultCollisionConfiguration>();
+    dispatcher = std::make_shared<btCollisionDispatcher>(config.get());
+    broadphase = std::make_shared<btDbvtBroadphase>();
+    solver = std::make_shared<btSequentialImpulseConstraintSolver>();
+
+    world = std::make_shared<btDiscreteDynamicsWorld>(dispatcher.get(), broadphase.get(), solver.get(), config.get());
+    world->setGravity({0, -10, 0});
+
     // spawn all the meshes and models from the terrain
     DecorateTerrain();
 
@@ -96,6 +105,9 @@ void Hunt::input(SDL_Event *e) {
 
 void Hunt::update(double dt) {
     if(isPaused) return;
+
+    //
+    world->stepSimulation(dt, 10, 1.f / 60.f);
 
     terrain->shader->setVec3("viewPosition", hunter->camera.position);
 

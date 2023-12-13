@@ -28,6 +28,10 @@
 
 #include "graphics/UniformBuffer.h"
 
+//
+#include <bullet/btBulletDynamicsCommon.h>
+#include <bullet/btBulletCollisionCommon.h>
+
 // forward declaration for parent/child relationship
 class Kernel;
 
@@ -47,6 +51,13 @@ public:
 
     std::unique_ptr<Skybox> skybox = nullptr;
 
+
+    // physics
+    std::shared_ptr<btDefaultCollisionConfiguration> config;
+    std::shared_ptr<btCollisionDispatcher> dispatcher;
+    std::shared_ptr<btDbvtBroadphase> broadphase;
+    std::shared_ptr<btSequentialImpulseConstraintSolver> solver;
+    std::shared_ptr<btDiscreteDynamicsWorld> world {nullptr};
 
     // cache map for ocarn2 meshes
     std::map<std::string, std::unique_ptr<EntityMesh>> characters;
